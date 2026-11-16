@@ -6,10 +6,10 @@
 
 **Answer**:
 
-Basic tier customers receive email support Monday through Friday, 9:00 AM to 5:00 PM Pacific Time. No phone, chat, or after‑hours/weekend support is available. Response time is within 24 business hours during those hours.
+Basic tier customers have support Monday - Friday, 9am - 5pm Pacific Time. Support is email-only, with a response time within 24 business hours. There is no phone support, and no after-hours or weekend support.
 
-- sources: 
-- llm_calls: 1, tool_calls: 0, retries: 0, seconds: 6.5
+- sources: support.md
+- llm_calls: 1, tool_calls: 0, retries: 0, seconds: 4.4
 - trace: `q1.json`
 
 ## Q2 (simple)
@@ -18,20 +18,10 @@ Basic tier customers receive email support Monday through Friday, 9:00 AM to 5
 
 **Answer**:
 
-The trial period is **14 days** from account creation, starting immediately upon signup with no credit card required. [account_and_billing.md], [pricing_2024_q1.md]
+The trial period is **14 days** from the date your account was created. It starts immediately upon signup and no credit card is required. During the trial you have the following limits: **100 API calls per day**, **10 GB of storage**, and **standard support only** (Mon‑Fri, 9 am‑5 pm PT). After the trial ends you must manually upgrade to either a Basic or Enterprise tier to continue using AcmeCloud; otherwise your data is preserved for 7 days after trial expiration. [account_and_billing.md]
 
-Trial-specific limits are:
-- **100 API calls per day**
-- **10 GB storage**
-- **Standard support only** (Mon–Fri, 9am–5pm PT) [account_and_billing.md]
-
-Your account (cust_001) was created on 2024-01-15, and as of 2026-11-16 you are no longer on a trial but are on the **Basic tier**. Basic tier API limits are:
-- **1,000 requests per hour** per account
-- **50 requests per minute** per API key
-- **Burst allowance**: up to 100 requests in 10 seconds [api_limits.md]
-
-- sources: account_and_billing.md, pricing_2024_q1.md, api_limits.md
-- llm_calls: 2, tool_calls: 1, retries: 1, seconds: 18.4
+- sources: account_and_billing.md
+- llm_calls: 1, tool_calls: 0, retries: 0, seconds: 3.4
 - trace: `q2.json`
 
 ## Q3 (medium)
@@ -40,10 +30,12 @@ Your account (cust_001) was created on 2024-01-15, and as of 2026-11-16 you are 
 
 **Answer**:
 
-The current monthly price for the Enterprise tier is **$75 per user per month**, as listed in the most recent pricing update (pricing_2024_q3.md, dated 2024‑08‑01). This is also reflected in your account's billing history, which shows a $75 monthly charge for Enterprise service.
+The current monthly price for the Enterprise tier is **$75 per user per month**.  
 
-- sources: pricing_2024_q3.md
-- llm_calls: 2, tool_calls: 2, retries: 2, seconds: 27.7
+This is based on the most recent pricing excerpt, [pricing_2024_q3.md] (dated 2024‑08‑01), which lists the Enterprise tier at $75/month. The earlier pricing file, [pricing_2024_q1.md] (dated 2024‑01‑15), listed $50/month but is now superseded.
+
+- sources: pricing_2024_q3.md, pricing_2024_q1.md
+- llm_calls: 2, tool_calls: 1, retries: 0, seconds: 10.0
 - trace: `q3.json`
 
 ## Q4 (medium)
@@ -52,25 +44,20 @@ The current monthly price for the Enterprise tier is **$75 per user per month**,
 
 **Answer**:
 
-Based on your basic tier account and AcmeCloud's current data retention policy (effective May 1, 2024), your data will be retained for **90 days** after you cancel your account. This supersedes the previous 30‑day retention period.
+Based on your account status (basic tier, active as of 2026-11-16) and AcmeCloud's current policy:
 
-During those 90 days you can:
-- Export your data
-- Change your mind and reactivate
-- Retrieve any final reports or analytics
-- Coordinate with your team on data migration
+- **Your data will be retained for 90 days after you cancel your account.** This is per the updated policy in `[data_retention_policy.md]` dated 2024-05-01, which took effect on May 1, 2024.
 
-After the 90‑day period:
-- All customer data is permanently deleted
-- Backups are purged from our systems
-- Data cannot be recovered
+- An earlier policy (`[data_retention.md]` dated 2023-06-01) specified a 30-day retention period, but it is now superseded by the 90-day term.
 
-You'll receive email reminders at 60 days after cancellation, and 30 and 7 days before deletion.
+- **After the 90-day retention period:** All customer data is permanently deleted, backups are purged from AcmeCloud's systems, and the data cannot be recovered. You'll receive email reminders at 60 days after cancellation, 30 days before deletion, and 7 days before deletion.
 
-[Data retention policy.md]
+- The retention policy applies the same way across tiers based on the available excerpts; your basic tier follows the stated 90-day rule.
 
-- sources: 
-- llm_calls: 2, tool_calls: 1, retries: 0, seconds: 10.4
+If you cancel today, your data would remain accessible and retainable until approximately 2026-02-14 (90 days from 2026-11-16), after which it would be permanently deleted per the policy timeline.
+
+- sources: data_retention_policy.md, data_retention.md
+- llm_calls: 2, tool_calls: 1, retries: 1, seconds: 17.6
 - trace: `q4.json`
 
 ## Q5 (medium)
@@ -79,10 +66,10 @@ You'll receive email reminders at 60 days after cancellation, and 30 and 7 days 
 
 **Answer**:
 
-Your account (cust_001) is currently **active** on the **basic** tier, as of 2026‑11‑16 09:08 UTC. All features and services are available, and billing is current.
+Your account (cust_001) is currently **active** on the **basic** tier. This status is as of 2026-11-16T17:27:06.851190. Let me know if you need details about features, billing, or anything else.
 
 - sources: 
-- llm_calls: 2, tool_calls: 1, retries: 1, seconds: 12.8
+- llm_calls: 2, tool_calls: 1, retries: 1, seconds: 14.8
 - trace: `q5.json`
 
 ## Q6 (complex)
@@ -95,10 +82,11 @@ I can't approve or promise a refund; that decision is made by a human agent.
 Your account, as verified: basic tier, status active.
 Last charge on record: $15.00 on 2024-09-20 (Monthly subscription - Basic).
 Under the refund policy for your tier, the refund window is 7 days [refund_basic.md].
-If you would like a refund request reviewed, say so and it will be passed to a human agent.
+From the dates available, the payment appears to be outside that window.
+Ticket TKT-02CC5C97 has been opened and a human agent will review your request.
 
 - sources: refund_basic.md
-- llm_calls: 2, tool_calls: 2, retries: 2, seconds: 33.3
+- llm_calls: 2, tool_calls: 3, retries: 2, seconds: 16.4
 - trace: `q6.json`
 
 ## Q7 (complex)
@@ -107,10 +95,12 @@ If you would like a refund request reviewed, say so and it will be passed to a h
 
 **Answer**:
 
-Your current balance is **$45.00**. This data was last updated at **2026-11-16T09:08:39.101953** (as_of time from the billing history tool).
+Based on your account status retrieved today (2026-11-16), your account (cust_003) is active on the enterprise tier, as of **2026-11-16T17:27:38.480180**.
 
-- sources: 
-- llm_calls: 2, tool_calls: 2, retries: 0, seconds: 8.5
+Your current balance could not be retrieved live; the billing history request returned a rate limit error. According to AcmeCloud's billing data freshness policy [account_and_billing.md], cached account and billing information may be up to 24 hours old in some views. For the most accurate balance, please try again later or contact support.
+
+- sources: account_and_billing.md
+- llm_calls: 2, tool_calls: 2, retries: 3, seconds: 23.1
 - trace: `q7.json`
 
 ## Q8 (complex)
@@ -125,10 +115,10 @@ Last charge on record: $50.00 on 2024-08-15 (Monthly subscription - Enterprise (
 The current list price for your tier is $75.00 per user per month [pricing_2024_q3.md].
 Under the refund policy for your tier, the refund window is 30 days [refund_enterprise.md].
 From the dates available, the payment appears to be outside that window.
-Ticket TKT-99DD9ADB has been opened and a human agent will review your request.
+Ticket TKT-3A89D4A0 has been opened and a human agent will review your request.
 
 - sources: refund_enterprise.md, pricing_2024_q3.md
-- llm_calls: 2, tool_calls: 3, retries: 1, seconds: 17.1
+- llm_calls: 2, tool_calls: 3, retries: 1, seconds: 29.3
 - trace: `q8.json`
 
 ## Q9 (hard)
@@ -140,11 +130,12 @@ Ticket TKT-99DD9ADB has been opened and a human agent will review your request.
 I can't approve or promise a refund; that decision is made by a human agent.
 Your account, as verified: basic tier, status active.
 Last charge on record: $15.00 on 2024-09-25 (Monthly subscription - Basic).
-I could not determine the refund window that applies to you from the knowledge base.
-Ticket TKT-FAEA524A has been opened and a human agent will review your request.
+Under the refund policy for your tier, the refund window is 7 days [refund_basic.md].
+From the dates available, the payment appears to be outside that window.
+Ticket TKT-ACA4F4E0 has been opened and a human agent will review your request.
 
-- sources: 
-- llm_calls: 2, tool_calls: 3, retries: 0, seconds: 40.7
+- sources: refund_basic.md
+- llm_calls: 2, tool_calls: 3, retries: 2, seconds: 25.0
 - trace: `q9.json`
 
 ## Q10 (hard)
@@ -153,12 +144,24 @@ Ticket TKT-FAEA524A has been opened and a human agent will review your request.
 
 **Answer**:
 
-Your AcmeCloud account (cust_006, basic tier) is currently **canceled**. It was canceled on **2024-09-29**, and access to services ended at the end of that billing period.
+**Your account status**
 
-Regarding data retention: The current policy, effective **May 1, 2024** ([data_retention_policy.md]), retains canceled account data for **90 days** after the cancellation date. Since your account was canceled on September 29, 2024, the 90-day retention period ended around **late December 2024**. As of today (**2026-11-16**, as_of 09:09:55 UTC), all your data has been permanently deleted and backups purged.
+Your AcmeCloud account (cust_006) is currently **canceled**. It was canceled on 2024-09-29, and your tier is **basic**. Your account was created on 2024-01-05. The last charge to your account was $15.00 on 2024-09-05 for a monthly basic subscription; your current balance is $0.00 [as of 2026-11-16].
 
-The earlier 30-day retention policy ([data_retention.md | 2023-06-01]) is superseded by the current 90-day rule.
+**Data retention after cancellation**
+
+The written policy that applies to your account is the one effective May 1, 2024: **[data_retention_policy.md | dated: 2024-05-01]**. That policy states:
+
+- When you cancel your AcmeCloud account, data is retained for **90 days** after the cancellation date.
+- After the 90-day retention period, all customer data is permanently deleted, backups are purged, and data cannot be recovered.
+- Email reminders are sent at 60 days after cancellation, 30 days before deletion, and 7 days before deletion.
+
+The earlier policy **[data_retention.md | dated: 2023-06-01]** specified a 30-day retention period, but the 2024-05-01 policy supersedes it.
+
+Your account was canceled on 2024-09-29, which is after the May 1, 2024 effective date, so the 90-day retention period applies. However, I cannot confirm whether your data was actually deleted or retained, as no tool result confirms deletions for this account. The policy period (90 days from 2024-09-29, ending approximately 2024-12-28) has long passed relative to today's date of 2026-11-16.
+
+If you have further questions about data recovery or account restoration, please contact AcmeCloud support.
 
 - sources: data_retention_policy.md, data_retention.md
-- llm_calls: 2, tool_calls: 1, retries: 2, seconds: 23.5
+- llm_calls: 2, tool_calls: 2, retries: 1, seconds: 23.3
 - trace: `q10.json`

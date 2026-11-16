@@ -7,10 +7,10 @@
     "note": "Tests pricing contradiction + tier-specific docs + multiple tools"
   },
   "http_status": 200,
-  "seconds": 17.1,
+  "seconds": 29.3,
   "response": {
-    "answer": "I can't approve or promise a refund; that decision is made by a human agent.\nYour account, as verified: enterprise tier, status active.\nLast charge on record: $50.00 on 2024-08-15 (Monthly subscription - Enterprise (legacy pricing)).\nThe current list price for your tier is $75.00 per user per month [pricing_2024_q3.md].\nUnder the refund policy for your tier, the refund window is 30 days [refund_enterprise.md].\nFrom the dates available, the payment appears to be outside that window.\nTicket TKT-99DD9ADB has been opened and a human agent will review your request.",
-    "request_id": "eval_20261116110646_q8",
+    "answer": "I can't approve or promise a refund; that decision is made by a human agent.\nYour account, as verified: enterprise tier, status active.\nLast charge on record: $50.00 on 2024-08-15 (Monthly subscription - Enterprise (legacy pricing)).\nThe current list price for your tier is $75.00 per user per month [pricing_2024_q3.md].\nUnder the refund policy for your tier, the refund window is 30 days [refund_enterprise.md].\nFrom the dates available, the payment appears to be outside that window.\nTicket TKT-3A89D4A0 has been opened and a human agent will review your request.",
+    "request_id": "eval_20261116192627_q8",
     "sources": [
       "refund_enterprise.md",
       "pricing_2024_q3.md"
@@ -20,12 +20,12 @@
     "llm_calls": 2
   },
   "trace": {
-    "request_id": "eval_20261116110646_q8",
+    "request_id": "eval_20261116192627_q8",
     "question": "I'm an Enterprise customer. I paid $50 last month but your pricing page says $75. Which is correct, and can I get a refund?",
     "customer_id": "cust_004",
     "timeline": [
       {
-        "timestamp": 1794820124.7927873,
+        "timestamp": 1794850077.453469,
         "type": "retrieval",
         "details": {
           "query": "I'm an Enterprise customer. I paid $50 last month but your pricing page says $75. Which is correct, and can I get a refund?",
@@ -90,17 +90,17 @@
         }
       },
       {
-        "timestamp": 1794820127.438974,
+        "timestamp": 1794850091.504233,
         "type": "llm_call",
         "details": {
           "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 3013,
+          "tokens": 4148,
           "finish_reason": "tool_calls",
           "purpose": "answer_or_select_tools"
         }
       },
       {
-        "timestamp": 1794820127.4390194,
+        "timestamp": 1794850091.5042746,
         "type": "decision",
         "details": {
           "action": "refund_case",
@@ -108,7 +108,7 @@
         }
       },
       {
-        "timestamp": 1794820131.9570284,
+        "timestamp": 1794850091.5126674,
         "type": "tool_call",
         "details": {
           "tool": "get_account_status",
@@ -122,7 +122,7 @@
             "status": "active",
             "created_at": "2023-12-01T00:00:00Z",
             "payment_method_id": "pm_004",
-            "as_of": "2026-11-16T09:08:47.446080"
+            "as_of": "2026-11-16T17:28:11.508420"
           },
           "error": null,
           "retry_count": 0,
@@ -135,7 +135,7 @@
         }
       },
       {
-        "timestamp": 1794820131.9570696,
+        "timestamp": 1794850091.5127163,
         "type": "tool_call",
         "details": {
           "tool": "get_billing_history",
@@ -151,16 +151,12 @@
               "description": "Monthly subscription - Enterprise (legacy pricing)"
             },
             "next_charge": "2024-10-01T00:00:00Z",
-            "as_of": "2026-11-16T09:08:51.954747"
+            "as_of": "2026-11-16T17:28:11.510310"
           },
           "error": null,
-          "retry_count": 1,
+          "retry_count": 0,
           "stale": false,
           "attempts": [
-            {
-              "outcome": "timeout",
-              "message": "Backend did not respond within 4s"
-            },
             {
               "outcome": "ok"
             }
@@ -168,24 +164,24 @@
         }
       },
       {
-        "timestamp": 1794820141.7702577,
+        "timestamp": 1794850106.0535944,
         "type": "llm_call",
         "details": {
           "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 4494,
+          "tokens": 4999,
           "finish_reason": "tool_calls",
           "purpose": "fill_refund_form"
         }
       },
       {
-        "timestamp": 1794820141.7704227,
+        "timestamp": 1794850106.053713,
         "type": "decision",
         "details": {
           "action": "refund_form",
           "returned": {
             "window_days": 30,
             "source": "refund_enterprise.md",
-            "within_window": "no",
+            "days_since_payment": 30,
             "needs_human": true,
             "current_price": 75,
             "price_source": "pricing_2024_q3.md"
@@ -202,7 +198,7 @@
         }
       },
       {
-        "timestamp": 1794820141.7790442,
+        "timestamp": 1794850106.5668511,
         "type": "tool_call",
         "details": {
           "tool": "escalate_to_human",
@@ -210,18 +206,22 @@
             "customer_id": "cust_004",
             "issue": "Refund request to review. Customer wrote: I'm an Enterprise customer. I paid $50 last month but your pricing page says $75. Which is correct, and can I get a refund?",
             "priority": "P2",
-            "idempotency_key": "457191dadea2cd5e683b66bec248b53e2532a9a5763fc58fdf6f62f33423731b"
+            "idempotency_key": "1a3b2c788342f956a9e5410742572c6f3a75a02a5bc14adbb00aae2ebf504ab4"
           },
           "result": {
-            "ticket_id": "TKT-99DD9ADB",
+            "ticket_id": "TKT-3A89D4A0",
             "status": "created",
             "customer_id": "cust_004",
             "priority": "P2"
           },
           "error": null,
-          "retry_count": 0,
+          "retry_count": 1,
           "stale": false,
           "attempts": [
+            {
+              "outcome": "service_error",
+              "message": "Backend returned HTTP 503"
+            },
             {
               "outcome": "ok"
             }

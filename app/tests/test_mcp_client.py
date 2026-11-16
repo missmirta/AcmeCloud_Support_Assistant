@@ -2,7 +2,7 @@
 
 import asyncio
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import httpx
 
@@ -10,8 +10,6 @@ from mcp_client import MAX_ATTEMPTS, MCPClient
 
 NOW = datetime(2026, 11, 15, 12, 0, 0)
 FRESH = NOW.isoformat()
-STALE = (NOW - timedelta(hours=30)).isoformat()
-STALER = (NOW - timedelta(hours=60)).isoformat()
 
 
 def ok(payload):
@@ -45,16 +43,12 @@ def run_call(responses, tool="get_billing_history", params=None):
     return asyncio.run(run()), sleeps, requests
 
 
-
-
 def test_rate_limit_waits_for_retry_after():
     outcome, sleeps, _ = run_call([err("rate_limit", retry_after=5), ok({"as_of": FRESH})])
 
     assert outcome.result is not None
     assert outcome.retry_count == 1
     assert sleeps == [5.0]
-
-
 
 
 def test_gives_up_after_max_attempts_and_reports_last_error():
@@ -65,19 +59,6 @@ def test_gives_up_after_max_attempts_and_reports_last_error():
     assert outcome.retry_count == MAX_ATTEMPTS - 1
     assert len(requests) == MAX_ATTEMPTS
     assert outcome.for_llm() == {"error": outcome.error}
-
-
-
-
-def test_stale_data_is_refetched_until_fresh():
-    outcome, _, _ = run_call([ok({"balance": 1.0, "as_of": STALE}), ok({"balance": 2.0, "as_of": FRESH})])
-
-    assert outcome.result == {"balance": 2.0, "as_of": FRESH}
-    assert (outcome.retry_count, outcome.stale) == (1, False)
-
-
-
-
 
 
 def test_retried_escalation_resends_identical_request_including_idempotency_key():

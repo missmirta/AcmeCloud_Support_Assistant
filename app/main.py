@@ -16,7 +16,7 @@ from fastapi import FastAPI, HTTPException
 
 import config
 from assistant import Assistant
-from llm import LLMClient, LLMError
+from llm import LLMClient, LLMCutOff, LLMError
 from mcp_client import MCPClient
 from models import AskRequest, AskResponse, Trace
 from retrieval import CorpusIndex
@@ -87,6 +87,10 @@ async def ask(request: AskRequest) -> AskResponse:
     try:
         assistant = await services.assistant()
         answer, sources = await assistant.answer(trace)
+    except LLMCutOff as e:
+        trace.add("llm_call", model=services.llm.chat_model, tokens=e.tokens, finish_reason="length",
+                  purpose="cut_off")
+        answer, sources = await assistant.hand_off(trace)
     except LLMError as e:
         trace.add("decision", action="failed", reason=str(e))
         raise HTTPException(status_code=503, detail=f"{e} (request_id={trace.request_id})")

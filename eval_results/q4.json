@@ -7,22 +7,25 @@
     "note": "Tests stale policy detection - must use current 90-day policy, not old 30-day"
   },
   "http_status": 200,
-  "seconds": 10.4,
+  "seconds": 17.6,
   "response": {
-    "answer": "Based on your basic tier account and AcmeCloud's current data retention policy (effective May 1, 2024), your data will be retained for **90 days** after you cancel your account. This supersedes the previous 30\u2011day retention period.\n\nDuring those 90 days you can:\n- Export your data\n- Change your mind and reactivate\n- Retrieve any final reports or analytics\n- Coordinate with your team on data migration\n\nAfter the 90\u2011day period:\n- All customer data is permanently deleted\n- Backups are purged from our systems\n- Data cannot be recovered\n\nYou'll receive email reminders at 60 days after cancellation, and 30 and 7 days before deletion.\n\n[Data retention policy.md]",
-    "request_id": "eval_20261116110646_q4",
-    "sources": [],
+    "answer": "Based on your account status (basic tier, active as of 2026-11-16) and AcmeCloud's current policy:\n\n- **Your data will be retained for 90 days after you cancel your account.** This is per the updated policy in `[data_retention_policy.md]` dated 2024-05-01, which took effect on May 1, 2024.\n\n- An earlier policy (`[data_retention.md]` dated 2023-06-01) specified a 30-day retention period, but it is now superseded by the 90-day term.\n\n- **After the 90-day retention period:** All customer data is permanently deleted, backups are purged from AcmeCloud's systems, and the data cannot be recovered. You'll receive email reminders at 60 days after cancellation, 30 days before deletion, and 7 days before deletion.\n\n- The retention policy applies the same way across tiers based on the available excerpts; your basic tier follows the stated 90-day rule.\n\nIf you cancel today, your data would remain accessible and retainable until approximately 2026-02-14 (90 days from 2026-11-16), after which it would be permanently deleted per the policy timeline.",
+    "request_id": "eval_20261116192627_q4",
+    "sources": [
+      "data_retention_policy.md",
+      "data_retention.md"
+    ],
     "tool_calls": 1,
-    "retries": 0,
+    "retries": 1,
     "llm_calls": 2
   },
   "trace": {
-    "request_id": "eval_20261116110646_q4",
+    "request_id": "eval_20261116192627_q4",
     "question": "If I cancel my account today, how long will my data be retained?",
     "customer_id": "cust_001",
     "timeline": [
       {
-        "timestamp": 1794820059.6321323,
+        "timestamp": 1794850005.3962379,
         "type": "retrieval",
         "details": {
           "query": "If I cancel my account today, how long will my data be retained?",
@@ -87,17 +90,17 @@
         }
       },
       {
-        "timestamp": 1794820061.9307423,
+        "timestamp": 1794850010.8608284,
         "type": "llm_call",
         "details": {
           "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 2763,
+          "tokens": 3463,
           "finish_reason": "tool_calls",
           "purpose": "answer_or_select_tools"
         }
       },
       {
-        "timestamp": 1794820061.9307892,
+        "timestamp": 1794850010.8608758,
         "type": "decision",
         "details": {
           "action": "call_tools",
@@ -107,7 +110,7 @@
         }
       },
       {
-        "timestamp": 1794820061.9363048,
+        "timestamp": 1794850011.375064,
         "type": "tool_call",
         "details": {
           "tool": "get_account_status",
@@ -121,12 +124,16 @@
             "status": "active",
             "created_at": "2024-01-15T00:00:00Z",
             "payment_method_id": "pm_001",
-            "as_of": "2026-11-16T09:07:41.934261"
+            "as_of": "2026-11-16T17:26:51.372333"
           },
           "error": null,
-          "retry_count": 0,
+          "retry_count": 1,
           "stale": false,
           "attempts": [
+            {
+              "outcome": "service_error",
+              "message": "Backend returned HTTP 503"
+            },
             {
               "outcome": "ok"
             }
@@ -134,11 +141,11 @@
         }
       },
       {
-        "timestamp": 1794820069.9537618,
+        "timestamp": 1794850022.846806,
         "type": "llm_call",
         "details": {
           "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 2945,
+          "tokens": 3514,
           "finish_reason": "stop",
           "purpose": "synthesize_answer"
         }
@@ -146,6 +153,6 @@
     ],
     "total_llm_calls": 2,
     "total_tool_calls": 1,
-    "total_retries": 0
+    "total_retries": 1
   }
 }

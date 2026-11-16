@@ -7,22 +7,24 @@
     "note": "Tests stale data detection - must check as_of timestamp from billing tool"
   },
   "http_status": 200,
-  "seconds": 8.5,
+  "seconds": 23.1,
   "response": {
-    "answer": "Your current balance is **$45.00**. This data was last updated at **2026-11-16T09:08:39.101953** (as_of time from the billing history tool).",
-    "request_id": "eval_20261116110646_q7",
-    "sources": [],
+    "answer": "Based on your account status retrieved today (2026-11-16), your account (cust_003) is active on the enterprise tier, as of **2026-11-16T17:27:38.480180**.\n\nYour current balance could not be retrieved live; the billing history request returned a rate limit error. According to AcmeCloud's billing data freshness policy [account_and_billing.md], cached account and billing information may be up to 24 hours old in some views. For the most accurate balance, please try again later or contact support.",
+    "request_id": "eval_20261116192627_q7",
+    "sources": [
+      "account_and_billing.md"
+    ],
     "tool_calls": 2,
-    "retries": 0,
+    "retries": 3,
     "llm_calls": 2
   },
   "trace": {
-    "request_id": "eval_20261116110646_q7",
+    "request_id": "eval_20261116192627_q7",
     "question": "What's my current balance and when was it last updated?",
     "customer_id": "cust_003",
     "timeline": [
       {
-        "timestamp": 1794820116.2211566,
+        "timestamp": 1794850054.267596,
         "type": "retrieval",
         "details": {
           "query": "What's my current balance and when was it last updated?",
@@ -87,17 +89,17 @@
         }
       },
       {
-        "timestamp": 1794820119.0965421,
+        "timestamp": 1794850058.4748032,
         "type": "llm_call",
         "details": {
           "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 2696,
+          "tokens": 2984,
           "finish_reason": "tool_calls",
           "purpose": "answer_or_select_tools"
         }
       },
       {
-        "timestamp": 1794820119.0966089,
+        "timestamp": 1794850058.474849,
         "type": "decision",
         "details": {
           "action": "call_tools",
@@ -108,7 +110,7 @@
         }
       },
       {
-        "timestamp": 1794820119.103367,
+        "timestamp": 1794850066.0072222,
         "type": "tool_call",
         "details": {
           "tool": "get_account_status",
@@ -122,7 +124,7 @@
             "status": "active",
             "created_at": "2024-02-10T00:00:00Z",
             "payment_method_id": "pm_003",
-            "as_of": "2026-11-16T09:08:39.100781"
+            "as_of": "2026-11-16T17:27:38.480180"
           },
           "error": null,
           "retry_count": 0,
@@ -135,40 +137,47 @@
         }
       },
       {
-        "timestamp": 1794820119.1034005,
+        "timestamp": 1794850066.0072627,
         "type": "tool_call",
         "details": {
           "tool": "get_billing_history",
           "params": {
             "customer_id": "cust_003"
           },
-          "result": {
-            "customer_id": "cust_003",
-            "balance": 45.0,
-            "last_charge": {
-              "amount": 75.0,
-              "date": "2024-09-10T00:00:00Z",
-              "description": "Monthly subscription - Enterprise"
-            },
-            "next_charge": "2024-10-10T00:00:00Z",
-            "as_of": "2026-11-16T09:08:39.101953"
+          "result": null,
+          "error": {
+            "type": "rate_limit",
+            "message": "Backend rate limit exceeded",
+            "retry_after": 5.0
           },
-          "error": null,
-          "retry_count": 0,
+          "retry_count": 3,
           "stale": false,
           "attempts": [
             {
-              "outcome": "ok"
+              "outcome": "service_error",
+              "message": "Backend returned HTTP 503"
+            },
+            {
+              "outcome": "rate_limit",
+              "message": "Backend rate limit exceeded"
+            },
+            {
+              "outcome": "service_error",
+              "message": "Backend returned HTTP 503"
+            },
+            {
+              "outcome": "rate_limit",
+              "message": "Backend rate limit exceeded"
             }
           ]
         }
       },
       {
-        "timestamp": 1794820124.639115,
+        "timestamp": 1794850077.2355907,
         "type": "llm_call",
         "details": {
           "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 2568,
+          "tokens": 3433,
           "finish_reason": "stop",
           "purpose": "synthesize_answer"
         }
@@ -176,6 +185,6 @@
     ],
     "total_llm_calls": 2,
     "total_tool_calls": 2,
-    "total_retries": 0
+    "total_retries": 3
   }
 }

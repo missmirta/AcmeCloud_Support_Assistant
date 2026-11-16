@@ -38,8 +38,7 @@ Knowledge-base questions cost one LLM call. Account questions cost two. Refund q
 
 ### Retrieval: 8 sections, at most 3 per file
 
-- Eight sections leave room for a multi-part question without a long prompt, and the cap of three per file stops one long document from filling every slot. 
-*Need future research to see if 8 is the right number.
+- Eight sections leave room for a multi-part question without a long prompt; the cap of three per file stops one long document from filling every slot.
 
 ### The model cannot choose the customer
 
@@ -54,11 +53,11 @@ I see that `corpus/escalation.md` tells the assistant to say refunds are approve
 
 1. **Routing.** Every function the model can call has a required flag `involves_refund`. The model's own text is shown only after an explicit `false`. A `true`, a missing flag, or a call to `refund_case` sends the request to the refund path. Plain text without a function call is never shown!
 2. **Lookups by code.** The app fetches account and billing itself.
-3. **A form, not an answer.** The second call can only return `refund_form`: a number of days, a file name from the retrieved list, yes/no/unknown, a boolean, a price. Any text next to it is discarded.
-4. **Checks by code.** The window is kept only if the cited file is the policy for the customer's tier and states that number of days. Otherwise the answer says the window could not be determined.
-5. **Text by code.** `app/refund.py` builds the answer from fixed sentences, the form and the tool data. If a human is needed, or no usable form came back, the code opens a P2 ticket.
+3. **A form, not an answer.** The second call can only return `refund_form`: a number of days, a file name from the retrieved list, a boolean, a price. The verdict is not a field: code computes it. Any text next to the form is discarded.
+4. **Checks by code.** The window is kept only if the cited file is the policy for the customer's tier and states that number of days. Otherwise, or if the form is missing, the code reads the window from the tier's own policy text; only if that fails does the answer say it could not be determined. A price is kept only if the cited file states it. The verdict is computed by code: the window is compared with the days since the last charge on record, a verified source. The customer's own figure ("10 days since I paid") is used only when the record has no date.
+5. **Text by code.** `app/refund.py` builds the answer from fixed sentences, the form and the tool data. If a human is needed, or no usable form came back, the code opens a P2 ticket. `needs_human` starts as `true`, so a missing or cut-off form goes to a human.
 
-Example of the answer the customer sees when LLM choose refund way (fixed sentences):
+Example answer (fixed sentences):
 
 ```text
 I can't approve or promise a refund; that decision is made by a human agent.
@@ -69,9 +68,9 @@ From the dates available, the payment appears to be inside that window; a human 
 Ticket TKT-1042 has been opened and a human agent will review your request.
 ```
 
-**Why there is no judge model.** The form already gives an exact guarantee where it matters most. A judge would either break the two-call limit or cover only the least risky path. It is the next step for production, where the two-call limit does not apply.
+**Why no judge model.** A judge would either break the two-call limit or cover only the least risky path. It is the next step for production.
 
-### Retries live in the app, not in the MCP server (MCP is the only a transport layer!)
+### Retries live in the app, not in the MCP server (MCP server is the only transport layer)
 
 The response must report the true number of retries. If the MCP server retried internally, the app could only guess.
 
@@ -103,26 +102,23 @@ The response must report the true number of retries. If the MCP server retried i
 
 `tool_calls`, `retries` and `llm_calls` are computed from the trace timeline, so `/ask` and `/trace` cannot disagree. Failed requests save their trace too.
 
-### Kept simple (as for testing task)
+### Kept simple
 
-- **No vector database.** 120 chunks in a numpy matrix.
-- **No LLM SDK.** Two REST endpoints called with `httpx`.
-- **Traces in memory**, last 1000. The eval script saves them to disk.
+- **No vector database** (120 chunks in a numpy matrix), **no LLM SDK** (`httpx`), **traces in memory** (last 1000; the eval script saves them to disk).
 - **Three MCP tools.** `reply`, `refund_case` and `refund_form` are not MCP tools. They never reach the backend: they tell the app which path to take and what shape the model's reply must have.
 
 ## Tests
 
-18 tests, kept few on purpose. LLM and MCP are mocked, so no API key or network is needed.
+27 tests (19 in `app/tests`, 8 in `mcp_server/tests`), kept few on purpose. LLM and MCP are mocked, so no API key or network is needed.
 
-- **API and trace:** `/ask` matches the contract; an LLM outage gives 503 and still saves the trace.
-- **LLM budget:** 1 call without tools, 2 with tools, never more than 2; after a repeated first call the answer comes from tool data.
+- **API and trace:** `/ask` matches the contract; an LLM outage gives 503 and still saves the trace; a cut-off reply goes to a human.
+- **LLM budget:** 1 call without tools, 2 with tools, never more than 2.
 - **Safety:** `customer_id` comes only from the request and cannot change the backend path.
-- **Refunds:** the answer is built by code from the form; the window must appear in the cited document.
-- **Retries:** `Retry-After`, attempt limit, stale data refetched, same idempotency key on retry.
-- **MCP server:** typed backend errors; escalation returns `ticket_id`.
-- **Retrieval:** cosine ranking; every corpus document has a date.
+- **Refunds:** the answer is built by code from the form; the window must appear in the cited document; a customer's stated days decide the verdict in code; an unknown verdict goes to a human.
+- **Retries:** `Retry-After`, attempt limit, same idempotency key on retry.
+- **MCP server and retrieval:** typed errors, `ticket_id`, cosine ranking, every document dated.
 
-Run: `cd app && pytest tests` and `cd mcp_server && pytest tests`.
+Run from the repo root: `python -m pytest app/tests mcp_server/tests`.
 
 ## Issues found in the provided package
 
@@ -143,7 +139,10 @@ Run: `cd app && pytest tests` and `cd mcp_server && pytest tests`.
 | Observed | Change |
 |---|---|
 | `openai/gpt-oss-20b` hung on every request that day | Chat model set via `CHAT_MODEL` (see README) |
-| Empty answers: the model spent its whole output limit reasoning | Limit raised to 8,192 tokens; a cut-off first call is repeated once |
+| Empty answers: the model spent its whole output limit reasoning | Limit raised to 16,384 tokens; a cut-off reply goes to a human, and its tokens and `finish_reason` are recorded in the trace |
+| A 2024 charge was called "inside" a 30-day window (Q8), because the model judged the date and the customer said "last month" | Verdict computed in code from the charge date |
+| The answer said the data "has been permanently deleted" (Q10) | Prompt rule names this case; no tool reports deletions, so the answer states only what the policy says |
+| A knowledge-base answer cited no file, so `sources` was empty (Q4) | Citation requirement repeated in the reminder sent with tool results |
 | Raw `<tool_call>` markup returned as the answer | Prompt states one round of tools; markup is rejected as an answer |
 | Q8 retrieved eight chunks from one file | At most 3 chunks per document |
 | `sources` listed every retrieved file | Only cited files are reported |
@@ -154,9 +153,8 @@ Run: `cd app && pytest tests` and `cd mcp_server && pytest tests`.
 ## Limitations
 
 - **The refund guarantee is not absolute.** A refund promise can still reach the customer in one case: the model wrongly marks a refund question as not about refunds and then promises a refund in its own text. <u>Removing this case completely would mean the model never writes free text at all.</u>
-- **Other planted instructions are stopped only by the prompt.** For production, <u>I would review documents before they are indexed, by a person or by a separate model run offline</u>, so that planted text never reaches the knowledge base.
+- **Other planted instructions are stopped only by the prompt.** <u>For production: review documents before indexing, by a person or an offline model run.</u>
 - **Refund answers are plain.** They are fixed sentences. A mixed question (Q8: price and refund) gets only the facts the form has fields for.
-- **No authentication.** `customer_id` is taken from the request body and nobody checks it. In production it must come from the authenticated session.
-- **Latency.** Requests took 4–28 s in the saved run. The model, not the retries, is the main delay. <u>For production: a faster model, and streaming the answer as it is written.</u>
-
-I did my best within the scope of a test task; in a real product these decisions may need to change to match product requirements.
+- **No authentication.** `customer_id` is taken from the request body and nobody checks it. In production, it must come from the authenticated session.
+- **Unneeded lookups.** The model sometimes calls `get_account_status` for general policy or price questions (Q3, Q4). The answer is still correct; it costs one extra tool call and one LLM call. Prompt wording did not fix it reliably, so it is accepted.
+- **Latency.** Requests took 3.4–29.3 s in the final saved run. The model, not the retries, is the main delay. <u>For production: a faster model and streaming.</u>

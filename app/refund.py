@@ -10,12 +10,12 @@ those fields and from tool results. None of the field types can carry a promise.
 
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from datetime import date
+from typing import Any, Dict, List, Optional, Tuple
 
 from mcp_client import ToolOutcome
 
 FORM_NAME = "refund_form"
-_VERDICTS = {"yes", "no", "unknown"}
 
 FORM_INSTRUCTION = (
     "This is a refund question. The account and billing data above were looked up for you. "
@@ -51,11 +51,10 @@ def form_schema(sources: List[str]) -> Dict[str, Any]:
                         "enum": sources,
                         "description": "Knowledge-base file that states this refund window",
                     },
-                    "within_window": {
-                        "type": "string",
-                        "enum": sorted(_VERDICTS),
-                        "description": "Whether the payment in question falls inside the window, judged from "
-                        "the dates the customer gave and the billing data; 'unknown' if it cannot be told",
+                    "days_since_payment": {
+                        "type": "integer",
+                        "description": "How many days ago the customer says they paid, in their own words "
+                        "(\"10 days since I paid\" is 10). -1 if they give no time",
                     },
                     "needs_human": {
                         "type": "boolean",
@@ -73,7 +72,7 @@ def form_schema(sources: List[str]) -> Dict[str, Any]:
                         "description": "Knowledge-base file that states current_price",
                     },
                 },
-                "required": ["window_days", "source", "within_window", "needs_human"],
+                "required": ["window_days", "source", "days_since_payment", "needs_human"],
             },
         },
     }
@@ -103,17 +102,54 @@ def _window_stated(days: int, text: str) -> bool:
     return re.search(rf"\b{days}[- ]days?\b", text, re.IGNORECASE) is not None
 
 
+def _policy_window(excerpts: Dict[str, "Excerpt"], account_tier: Any) -> Optional[Tuple[int, str]]:
+    """
+    The window as the customer's tier policy states it ("within 7 days"), for when the
+    model's form is missing or rejected. Used only if the tier's documents agree on one number.
+    """
+    found = [
+        (int(m.group(1)), name)
+        for name, excerpt in excerpts.items() if _applies_to_tier(excerpt, account_tier)
+        for m in re.finditer(r"\bwithin\s+\**(\d+)[- ]days?\b", excerpt.text, re.IGNORECASE)
+    ]
+    return found[0] if found and len({days for days, _ in found}) == 1 else None
+
+
+def _price_stated(price: float, text: str) -> bool:
+    """The price must appear as a dollar amount in the document that cites it."""
+    return re.search(rf"\${price:g}(\.00)?(?!\d)", text) is not None
+
+
 def _applies_to_tier(excerpt: "Excerpt", account_tier: Any) -> bool:
     """The cited document must be the policy for this customer's tier, not another tier's."""
     return isinstance(account_tier, str) and excerpt.tier is not None and excerpt.tier == account_tier.strip().lower()
 
 
-def parse_form(args: Dict[str, Any], excerpts: Dict[str, "Excerpt"], account_tier: Any) -> RefundForm:
+def days_since_last_charge(billing: ToolOutcome, today: date) -> Optional[int]:
+    """Days from the last charge on record to today, or None if the record has no usable date."""
+    charge = (billing.result or {}).get("last_charge")
+    if not isinstance(charge, dict):
+        return None
+    try:
+        charged_on = date.fromisoformat(str(charge.get("date"))[:10])
+    except ValueError:
+        return None
+    return (today - charged_on).days if charged_on <= today else None
+
+
+def parse_form(
+    args: Dict[str, Any], excerpts: Dict[str, "Excerpt"], account_tier: Any,
+    days_since_charge: Optional[int] = None,
+) -> RefundForm:
     """Keep only values of the expected type; anything else is dropped, never shown.
 
     `excerpts` maps each retrieved file name to its text and tier. A window is kept
     only when the file the model cites is the policy for `account_tier` and states
-    that number of days; otherwise the answer says the window could not be determined.
+    that number of days; otherwise the window is read from the tier's own policy text,
+    and failing that the answer says the window could not be determined.
+
+    The verdict is never the model's: the code compares the window with the days since
+    the last charge on record, or with the customer's figure when the record has no date.
     """
     form = RefundForm()
     window, source = args.get("window_days"), args.get("source")
@@ -122,13 +158,25 @@ def parse_form(args: Dict[str, Any], excerpts: Dict[str, "Excerpt"], account_tie
             and _applies_to_tier(excerpts[source], account_tier)
             and _window_stated(int(window), excerpts[source].text)):
         form.window_days, form.source = int(window), source
-        if args.get("within_window") in _VERDICTS:
-            form.within_window = args["within_window"]
+    elif (policy := _policy_window(excerpts, account_tier)):
+        form.window_days, form.source = policy
+    # The billing record is verified data; the customer's own figure ("last month") is not.
+    # It is used only when the record gives no date.
+    paid_days = days_since_charge
+    customer_days = args.get("days_since_payment")
+    if paid_days is None and _is_number(customer_days) and 0 <= customer_days <= 3650:
+        paid_days = customer_days
+    if form.window_days is not None and paid_days is not None:
+        form.within_window = "yes" if paid_days <= form.window_days else "no"
     if isinstance(args.get("needs_human"), bool):
         form.needs_human = args["needs_human"]
     price, price_source = args.get("current_price"), args.get("price_source")
-    if _is_number(price) and 0 < price < 1_000_000 and isinstance(price_source, str) and price_source in excerpts:
+    if (_is_number(price) and 0 < price < 1_000_000 and isinstance(price_source, str) and price_source in excerpts
+            and _price_stated(price, excerpts[price_source].text)):
         form.current_price, form.price_source = float(price), price_source
+    if form.window_days is None or form.within_window == "unknown":
+        # No verdict can be given from the code's side: a human decides, and opens the ticket.
+        form.needs_human = True
     return form
 
 

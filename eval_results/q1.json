@@ -7,22 +7,24 @@
     "note": "Single document retrieval, no tools"
   },
   "http_status": 200,
-  "seconds": 6.5,
+  "seconds": 4.4,
   "response": {
-    "answer": "Basic tier customers receive email support Monday through Friday, 9:00\u202fAM to 5:00\u202fPM Pacific Time. No phone, chat, or after\u2011hours/weekend support is available. Response time is within 24 business hours during those hours.",
-    "request_id": "eval_20261116110646_q1",
-    "sources": [],
+    "answer": "Basic tier customers have support Monday - Friday, 9am - 5pm Pacific Time. Support is email-only, with a response time within 24 business hours. There is no phone support, and no after-hours or weekend support.",
+    "request_id": "eval_20261116192627_q1",
+    "sources": [
+      "support.md"
+    ],
     "tool_calls": 0,
     "retries": 0,
     "llm_calls": 1
   },
   "trace": {
-    "request_id": "eval_20261116110646_q1",
+    "request_id": "eval_20261116192627_q1",
     "question": "What are the support hours for Basic tier customers?",
     "customer_id": "cust_001",
     "timeline": [
       {
-        "timestamp": 1794820007.0992513,
+        "timestamp": 1794849987.7814815,
         "type": "retrieval",
         "details": {
           "query": "What are the support hours for Basic tier customers?",
@@ -87,17 +89,17 @@
         }
       },
       {
-        "timestamp": 1794820013.3704228,
+        "timestamp": 1794849991.901344,
         "type": "llm_call",
         "details": {
           "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 3593,
+          "tokens": 3553,
           "finish_reason": "tool_calls",
           "purpose": "answer_or_select_tools"
         }
       },
       {
-        "timestamp": 1794820013.3704798,
+        "timestamp": 1794849991.9013934,
         "type": "decision",
         "details": {
           "action": "answer_from_knowledge_base"

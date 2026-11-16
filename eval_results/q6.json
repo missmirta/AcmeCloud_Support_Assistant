@@ -7,24 +7,24 @@
     "note": "Tests tier-specific retrieval + tool calling to verify tier"
   },
   "http_status": 200,
-  "seconds": 33.3,
+  "seconds": 16.4,
   "response": {
-    "answer": "I can't approve or promise a refund; that decision is made by a human agent.\nYour account, as verified: basic tier, status active.\nLast charge on record: $15.00 on 2024-09-20 (Monthly subscription - Basic).\nUnder the refund policy for your tier, the refund window is 7 days [refund_basic.md].\nIf you would like a refund request reviewed, say so and it will be passed to a human agent.",
-    "request_id": "eval_20261116110646_q6",
+    "answer": "I can't approve or promise a refund; that decision is made by a human agent.\nYour account, as verified: basic tier, status active.\nLast charge on record: $15.00 on 2024-09-20 (Monthly subscription - Basic).\nUnder the refund policy for your tier, the refund window is 7 days [refund_basic.md].\nFrom the dates available, the payment appears to be outside that window.\nTicket TKT-02CC5C97 has been opened and a human agent will review your request.",
+    "request_id": "eval_20261116192627_q6",
     "sources": [
       "refund_basic.md"
     ],
-    "tool_calls": 2,
+    "tool_calls": 3,
     "retries": 2,
     "llm_calls": 2
   },
   "trace": {
-    "request_id": "eval_20261116110646_q6",
+    "request_id": "eval_20261116192627_q6",
     "question": "I'm on Basic tier and want a refund. It's been 10 days since I paid. Am I eligible?",
     "customer_id": "cust_002",
     "timeline": [
       {
-        "timestamp": 1794820082.9147923,
+        "timestamp": 1794850037.7970245,
         "type": "retrieval",
         "details": {
           "query": "I'm on Basic tier and want a refund. It's been 10 days since I paid. Am I eligible?",
@@ -89,17 +89,17 @@
         }
       },
       {
-        "timestamp": 1794820100.741121,
+        "timestamp": 1794850045.5657198,
         "type": "llm_call",
         "details": {
           "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 5988,
+          "tokens": 4293,
           "finish_reason": "tool_calls",
           "purpose": "answer_or_select_tools"
         }
       },
       {
-        "timestamp": 1794820100.7411668,
+        "timestamp": 1794850045.5657609,
         "type": "decision",
         "details": {
           "action": "refund_case",
@@ -107,7 +107,7 @@
         }
       },
       {
-        "timestamp": 1794820105.7549706,
+        "timestamp": 1794850050.5812309,
         "type": "tool_call",
         "details": {
           "tool": "get_account_status",
@@ -121,7 +121,7 @@
             "status": "active",
             "created_at": "2024-03-20T00:00:00Z",
             "payment_method_id": "pm_002",
-            "as_of": "2026-11-16T09:08:25.752818"
+            "as_of": "2026-11-16T17:27:30.579366"
           },
           "error": null,
           "retry_count": 1,
@@ -138,7 +138,7 @@
         }
       },
       {
-        "timestamp": 1794820105.7550108,
+        "timestamp": 1794850050.5812697,
         "type": "tool_call",
         "details": {
           "tool": "get_billing_history",
@@ -154,15 +154,15 @@
               "description": "Monthly subscription - Basic"
             },
             "next_charge": "2024-10-20T00:00:00Z",
-            "as_of": "2026-11-16T09:08:21.254143"
+            "as_of": "2026-11-16T17:27:30.578364"
           },
           "error": null,
           "retry_count": 1,
           "stale": false,
           "attempts": [
             {
-              "outcome": "service_error",
-              "message": "Backend returned HTTP 503"
+              "outcome": "rate_limit",
+              "message": "Backend rate limit exceeded"
             },
             {
               "outcome": "ok"
@@ -171,40 +171,67 @@
         }
       },
       {
-        "timestamp": 1794820116.0681818,
+        "timestamp": 1794850054.0643303,
         "type": "llm_call",
         "details": {
           "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 4230,
+          "tokens": 3475,
           "finish_reason": "tool_calls",
           "purpose": "fill_refund_form"
         }
       },
       {
-        "timestamp": 1794820116.0683672,
+        "timestamp": 1794850054.0645113,
         "type": "decision",
         "details": {
           "action": "refund_form",
           "returned": {
             "window_days": 7,
             "source": "refund_basic.md",
-            "within_window": "unknown",
-            "needs_human": false
+            "days_since_payment": 10,
+            "needs_human": true
           },
           "used": {
             "window_days": 7,
             "source": "refund_basic.md",
-            "within_window": "unknown",
-            "needs_human": false,
+            "within_window": "no",
+            "needs_human": true,
             "current_price": null,
             "price_source": null
           },
           "discarded_text": null
         }
+      },
+      {
+        "timestamp": 1794850054.0713603,
+        "type": "tool_call",
+        "details": {
+          "tool": "escalate_to_human",
+          "params": {
+            "customer_id": "cust_002",
+            "issue": "Refund request to review. Customer wrote: I'm on Basic tier and want a refund. It's been 10 days since I paid. Am I eligible?",
+            "priority": "P2",
+            "idempotency_key": "8808d8843b6e40a3a5a5ff1400e6f088c9e8fafa828866da0a0704bd57cb80cc"
+          },
+          "result": {
+            "ticket_id": "TKT-02CC5C97",
+            "status": "created",
+            "customer_id": "cust_002",
+            "priority": "P2"
+          },
+          "error": null,
+          "retry_count": 0,
+          "stale": false,
+          "attempts": [
+            {
+              "outcome": "ok"
+            }
+          ]
+        }
       }
     ],
     "total_llm_calls": 2,
-    "total_tool_calls": 2,
+    "total_tool_calls": 3,
     "total_retries": 2
   }
 }

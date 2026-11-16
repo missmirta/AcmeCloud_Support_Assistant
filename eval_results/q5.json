@@ -7,22 +7,22 @@
     "note": "Tests tool calling - may encounter rate limits or timeouts"
   },
   "http_status": 200,
-  "seconds": 12.8,
+  "seconds": 14.8,
   "response": {
-    "answer": "Your account (cust_001) is currently **active** on the **basic** tier, as of 2026\u201111\u201116\u202f09:08\u202fUTC. All features and services are available, and billing is current.",
-    "request_id": "eval_20261116110646_q5",
+    "answer": "Your account (cust_001) is currently **active** on the **basic** tier. This status is as of 2026-11-16T17:27:06.851190. Let me know if you need details about features, billing, or anything else.",
+    "request_id": "eval_20261116192627_q5",
     "sources": [],
     "tool_calls": 1,
     "retries": 1,
     "llm_calls": 2
   },
   "trace": {
-    "request_id": "eval_20261116110646_q5",
+    "request_id": "eval_20261116192627_q5",
     "question": "Can you check my account status?",
     "customer_id": "cust_001",
     "timeline": [
       {
-        "timestamp": 1794820070.1027167,
+        "timestamp": 1794850022.9885237,
         "type": "retrieval",
         "details": {
           "query": "Can you check my account status?",
@@ -87,17 +87,17 @@
         }
       },
       {
-        "timestamp": 1794820076.5222414,
+        "timestamp": 1794850026.3390217,
         "type": "llm_call",
         "details": {
           "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 3640,
+          "tokens": 3391,
           "finish_reason": "tool_calls",
           "purpose": "answer_or_select_tools"
         }
       },
       {
-        "timestamp": 1794820076.5222862,
+        "timestamp": 1794850026.339067,
         "type": "decision",
         "details": {
           "action": "call_tools",
@@ -107,7 +107,7 @@
         }
       },
       {
-        "timestamp": 1794820081.5364068,
+        "timestamp": 1794850026.8534417,
         "type": "tool_call",
         "details": {
           "tool": "get_account_status",
@@ -121,15 +121,15 @@
             "status": "active",
             "created_at": "2024-01-15T00:00:00Z",
             "payment_method_id": "pm_001",
-            "as_of": "2026-11-16T09:08:01.533700"
+            "as_of": "2026-11-16T17:27:06.851190"
           },
           "error": null,
           "retry_count": 1,
           "stale": false,
           "attempts": [
             {
-              "outcome": "rate_limit",
-              "message": "Backend rate limit exceeded"
+              "outcome": "service_error",
+              "message": "Backend returned HTTP 503"
             },
             {
               "outcome": "ok"
@@ -138,11 +138,11 @@
         }
       },
       {
-        "timestamp": 1794820082.7865922,
+        "timestamp": 1794850037.647098,
         "type": "llm_call",
         "details": {
           "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 2077,
+          "tokens": 3402,
           "finish_reason": "stop",
           "purpose": "synthesize_answer"
         }

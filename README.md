@@ -28,7 +28,8 @@ curl localhost:8000/health  # {"status":"ok","index_ready":true,"chunks":120,"mc
 
 NVIDIA NIM, as suggested, with `nvidia/nemotron-3-embed-1b` for embeddings.
 
-**Chat model deviation.** The eval script sets `CHAT_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b` to the working model, because `gpt-oss-20b` was not responding on NIM.
+**Chat model deviation.** `.env.example` sets `CHAT_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b`, because the code default `openai/gpt-oss-20b` was not responding on NIM.
+
 ## API
 
 ```bash
@@ -107,4 +108,3 @@ This runs the 10 questions in `eval/questions.json` and writes, to `eval_results
 `eval_results/NOTES.md` holds the per-question correctness review and the corpus documents each answer was checked against.
 
 The backend's failure sequence is seeded at startup, so `docker compose restart backend` replays the same failures and consecutive runs without a restart see different ones.
-"# AcmeCloud_Support_Assistant" 

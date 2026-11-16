@@ -19,9 +19,12 @@ from typing import Any, Dict, List, Optional, Tuple
 from llm import LLMClient, LLMCutOff, LLMReply, ToolCall
 from mcp_client import MCPClient, ToolOutcome
 from prompts import (
-    FINAL_ANSWER_REMINDER, REFUND_CASE, REFUND_FLAG, REPLY, SYSTEM_PROMPT, TOOLS, build_user_prompt,
+    FINAL_ANSWER_REMINDER, REFUND_CASE, REFUND_FLAG, REPLY, SYSTEM_PROMPT, TOOLS, build_user_prompt, tools_for,
 )
-from refund import FORM_INSTRUCTION, FORM_NAME, Excerpt, form_schema, parse_form, render_answer, render_lookup_answer
+from refund import (
+    FORM_INSTRUCTION, FORM_NAME, Excerpt, days_since_last_charge, form_schema, parse_form, render_answer,
+    render_lookup_answer,
+)
 from retrieval import Chunk, CorpusIndex
 from tracing import TraceRecorder
 
@@ -37,6 +40,7 @@ _CITATION_RE = re.compile(r"[\w\-]+\.md")
 # could not; that is not an answer and must not be shown to a customer.
 _TOOL_MARKUP_RE = re.compile(r"</?tool_call\b|<function=", re.IGNORECASE)
 _NO_ANSWER = "I wasn't able to produce an answer for this question. Please escalate to a human agent."
+_HAND_OFF = "I can't answer this automatically. A human agent will review your request."
 
 
 def _parse_arguments(raw: str) -> Dict[str, Any]:
@@ -63,6 +67,15 @@ def cited_sources(answer: str, hits: List[Tuple[Chunk, float]]) -> List[str]:
     """Retrieved files the answer cites. None cited means none used (e.g. a tool-only answer)."""
     retrieved = {chunk.source for chunk, _ in hits}
     return [name for name in dict.fromkeys(_CITATION_RE.findall(answer)) if name in retrieved]
+
+
+def _declared_sources(args: Dict[str, Any], hits: List[Tuple[Chunk, float]]) -> List[str]:
+    """Files the model declared in reply(), limited to the retrieved ones (model output is untrusted)."""
+    retrieved = {chunk.source for chunk, _ in hits}
+    declared = args.get("sources")
+    if not isinstance(declared, list):
+        return []
+    return [name for name in dict.fromkeys(n for n in declared if isinstance(n, str)) if name in retrieved]
 
 
 class Assistant:
@@ -155,8 +168,9 @@ class Assistant:
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": build_user_prompt(trace.question, trace.customer_id, hits, date.today())},
         ]
+        tools = tools_for(list(dict.fromkeys(chunk.source for chunk, _ in hits)))
 
-        reply = await self._first_call(messages, trace)
+        reply = await self._first_call(messages, tools, trace)
         if reply is None:
             trace.add("decision", action="fallback_answer", reason="model returned no function call twice")
             return _NO_ANSWER, []
@@ -179,20 +193,35 @@ class Assistant:
             messages.append(LLMReply(reply.content, lookups).as_message())
             messages.extend(await self._run_tools(lookups, trace))
             messages.append({"role": "user", "content": FINAL_ANSWER_REMINDER})
-            reply = await self._llm.chat(messages, tools=TOOLS, tool_choice="none")
+            reply = await self._llm.chat(messages, tools=tools, tool_choice="none")
             trace.add("llm_call", model=self._llm.chat_model, tokens=reply.tokens,
                       finish_reason=reply.finish_reason, purpose="synthesize_answer")
             answer = reply.content
+            sources = cited_sources(answer, hits) if answer else []
         else:
             trace.add("decision", action="answer_from_knowledge_base")
-            answer = str(_parse_arguments(reply.tool_calls[0].arguments).get("answer") or "").strip()
+            args = _parse_arguments(reply.tool_calls[0].arguments)
+            answer = str(args.get("answer") or "").strip()
+            sources = _declared_sources(args, hits)
 
         if not answer or _TOOL_MARKUP_RE.search(answer):
             trace.add("decision", action="fallback_answer", reason="model returned no usable text", raw=answer)
-            answer = _NO_ANSWER
-        return answer, cited_sources(answer, hits)
+            return _NO_ANSWER, []
+        return answer, sources
 
-    async def _first_call(self, messages: List[Dict[str, Any]], trace: TraceRecorder) -> Optional[LLMReply]:
+    async def hand_off(self, trace: TraceRecorder) -> Tuple[str, List[str]]:
+        """An LLM reply hit the output limit: open a human ticket and give no automatic answer."""
+        trace.add("decision", action="hand_off", reason="LLM reply cut off at the output limit")
+        ticket = ToolCall("open_ticket", "escalate_to_human", json.dumps(
+            {"issue": f"Request not answered automatically (reply cut off). Customer wrote: {trace.question}",
+             "priority": "P2"}
+        ))
+        await self._run_tools([ticket], trace)
+        return _HAND_OFF, []
+
+    async def _first_call(
+        self, messages: List[Dict[str, Any]], tools: List[Dict[str, Any]], trace: TraceRecorder
+    ) -> Optional[LLMReply]:
         """
         The first LLM call, which must return a function call. "required" means
         the response always carries the refund flag; text without a function
@@ -201,13 +230,7 @@ class Assistant:
         retried once, which uses up the second LLM call.
         """
         for _ in range(MAX_LLM_CALLS):
-            try:
-                reply = await self._llm.chat(messages, tools=TOOLS, tool_choice="required")
-            except LLMCutOff as e:
-                trace.add("llm_call", model=self._llm.chat_model, tokens=0,
-                          finish_reason="length", purpose="answer_or_select_tools")
-                trace.add("decision", action="retry_first_call", reason=str(e))
-                continue
+            reply = await self._llm.chat(messages, tools=tools, tool_choice="required")
             trace.add("llm_call", model=self._llm.chat_model, tokens=reply.tokens,
                       finish_reason=reply.finish_reason, purpose="answer_or_select_tools")
             if reply.tool_calls:
@@ -241,24 +264,23 @@ class Assistant:
         # Without a form the answer is still written, from tool data alone, and a human gets the case.
         raw, discarded = None, None
         if llm_call_left:
-            try:
-                reply = await self._llm.chat(
-                    messages,
-                    tools=[form_schema(list(excerpts))],
-                    tool_choice={"type": "function", "function": {"name": FORM_NAME}},
-                )
-                trace.add("llm_call", model=self._llm.chat_model, tokens=reply.tokens,
-                          finish_reason=reply.finish_reason, purpose="fill_refund_form")
-                # Any text the model wrote here is discarded: only the form is read.
-                raw = next((_parse_arguments(c.arguments) for c in reply.tool_calls if c.name == FORM_NAME), None)
-                discarded = reply.content or None
-            except LLMCutOff:
-                trace.add("llm_call", model=self._llm.chat_model, tokens=0,
-                          finish_reason="length", purpose="fill_refund_form")
-        form = parse_form(raw or {}, excerpts, account_tier)
+            reply = await self._llm.chat(
+                messages,
+                tools=[form_schema(list(excerpts))],
+                tool_choice={"type": "function", "function": {"name": FORM_NAME}},
+            )
+            trace.add("llm_call", model=self._llm.chat_model, tokens=reply.tokens,
+                      finish_reason=reply.finish_reason, purpose="fill_refund_form")
+            # Any text the model wrote here is discarded: only the form is read.
+            raw = next((_parse_arguments(c.arguments) for c in reply.tool_calls if c.name == FORM_NAME), None)
+            discarded = reply.content or None
+        form = parse_form(raw or {}, excerpts, account_tier,
+                          days_since_last_charge(outcomes["get_billing_history"], date.today()))
         trace.add("decision", action="refund_form", returned=raw, used=asdict(form), discarded_text=discarded)
 
-        if form.needs_human:
+        # Any problem in the lookups or the form sends the case to a human, not just the form's own flag.
+        lookups_failed = any(not outcomes[k].result for k in ("get_account_status", "get_billing_history"))
+        if form.needs_human or lookups_failed:
             ticket = ToolCall("open_ticket", "escalate_to_human", json.dumps(
                 {"issue": f"Refund request to review. Customer wrote: {trace.question}", "priority": "P2"}
             ))

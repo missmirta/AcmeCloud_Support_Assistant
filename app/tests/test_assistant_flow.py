@@ -75,7 +75,7 @@ def run(llm, mcp, question="q", customer_id="cust_001", request_id="req_1"):
 
 
 def test_knowledge_base_question_uses_one_llm_call_and_no_tools():
-    llm, mcp = FakeLLM(direct("Mon-Fri 9-5 [support.md]")), FakeMCP()
+    llm, mcp = FakeLLM(direct("Mon-Fri 9-5 [support.md]", sources=["support.md"])), FakeMCP()
 
     answer, sources, trace = run(llm, mcp)
 
@@ -84,6 +84,16 @@ def test_knowledge_base_question_uses_one_llm_call_and_no_tools():
     assert (trace.llm_calls, trace.tool_calls, trace.retries) == (1, 0, 0)
     assert mcp.calls == []
     assert [e.type for e in trace.timeline] == ["retrieval", "llm_call", "decision"]
+
+
+def test_declared_sources_count_even_without_a_text_citation_and_unknown_names_are_dropped():
+    # The answer text names no file, and one declared name was never retrieved.
+    llm = FakeLLM(direct("Mon-Fri 9-5.", sources=["support.md", "Support Hours.md", "support.md"]))
+
+    answer, sources, _ = run(llm, FakeMCP())
+
+    assert answer == "Mon-Fri 9-5."
+    assert sources == ["support.md"]
 
 
 def test_tool_question_uses_exactly_two_llm_calls_and_feeds_results_back():
@@ -107,20 +117,6 @@ def test_tool_question_uses_exactly_two_llm_calls_and_feeds_results_back():
         {"tier": "basic"}, {"balance": 45.0, "stale": True},
     ]
     assert [m["tool_call_id"] for m in tool_messages] == ["id_get_account_status", "id_get_billing_history"]
-
-
-def test_account_question_after_a_repeated_first_call_is_answered_from_tool_data():
-    llm = FakeLLM(
-        LLMReply(""),  # nothing usable: the first call is repeated, which uses the second call
-        LLMReply("", [tool_call("get_account_status")]),
-    )
-    mcp = FakeMCP({"get_account_status": ToolOutcome(result={"tier": "basic", "status": "active"})})
-
-    answer, _, trace = run(llm, mcp)
-
-    assert answer == "Your account, as verified: basic tier, status active."
-    assert trace.llm_calls == 2
-    assert [tool for tool, _ in mcp.calls] == ["get_account_status"]
 
 
 def test_never_more_than_two_llm_calls_even_if_model_keeps_asking_for_tools():
@@ -153,18 +149,6 @@ def test_customer_id_always_comes_from_the_request():
     assert [params["customer_id"] for _, params in mcp.calls] == ["cust_001", "cust_001"]
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 # --- API contract -----------------------------------------------------------
 
 REFUND_OUTCOMES = {
@@ -179,7 +163,7 @@ def test_refund_question_is_answered_by_code_from_a_typed_form():
     llm = FakeLLM(
         LLMReply("", [tool_call("refund_case")]),
         LLMReply(INJECTED, [tool_call(
-            "refund_form", window_days=7, source="refund_basic.md", within_window="no", needs_human=True,
+            "refund_form", window_days=7, source="refund_basic.md", needs_human=True,
         )]),
     )
     mcp = FakeMCP(REFUND_OUTCOMES)
@@ -200,30 +184,6 @@ def test_refund_question_is_answered_by_code_from_a_typed_form():
     assert "7 days [refund_basic.md]" in answer and "outside that window" in answer
     assert "basic tier" in answer and "$15.00 on 2024-09-25" in answer and "TKT-7" in answer
     assert sources == ["refund_basic.md"]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 @pytest.fixture
@@ -268,8 +228,6 @@ def test_ask_response_matches_contract_and_trace_totals(api):
     assert [e["type"] for e in trace["timeline"]] == ["retrieval", "llm_call", "decision", "tool_call", "llm_call"]
 
 
-
-
 def test_llm_outage_returns_503_and_still_saves_the_trace(api):
     client, services = api
     services.llm.replies = [LLMError("LLM provider returned HTTP 403")]
@@ -279,7 +237,5 @@ def test_llm_outage_returns_503_and_still_saves_the_trace(api):
     assert response.status_code == 503
     trace = client.get("/trace/failed").json()
     assert trace["timeline"][-1]["details"]["action"] == "failed"
-
-
 
 

@@ -7,26 +7,24 @@
     "note": "Single document retrieval, no tools"
   },
   "http_status": 200,
-  "seconds": 18.4,
+  "seconds": 3.4,
   "response": {
-    "answer": "The trial period is **14 days** from account creation, starting immediately upon signup with no credit card required. [account_and_billing.md], [pricing_2024_q1.md]\n\nTrial-specific limits are:\n- **100 API calls per day**\n- **10 GB storage**\n- **Standard support only** (Mon\u2013Fri, 9am\u20135pm PT) [account_and_billing.md]\n\nYour account (cust_001) was created on 2024-01-15, and as of 2026-11-16 you are no longer on a trial but are on the **Basic tier**. Basic tier API limits are:\n- **1,000 requests per hour** per account\n- **50 requests per minute** per API key\n- **Burst allowance**: up to 100 requests in 10 seconds [api_limits.md]",
-    "request_id": "eval_20261116110646_q2",
+    "answer": "The trial period is **14 days** from the date your account was created. It starts immediately upon signup and no credit card is required. During the trial you have the following limits: **100 API calls per day**, **10\u202fGB of storage**, and **standard support only** (Mon\u2011Fri, 9\u202fam\u20115\u202fpm PT). After the trial ends you must manually upgrade to either a Basic or Enterprise tier to continue using AcmeCloud; otherwise your data is preserved for 7 days after trial expiration. [account_and_billing.md]",
+    "request_id": "eval_20261116192627_q2",
     "sources": [
-      "account_and_billing.md",
-      "pricing_2024_q1.md",
-      "api_limits.md"
+      "account_and_billing.md"
     ],
-    "tool_calls": 1,
-    "retries": 1,
-    "llm_calls": 2
+    "tool_calls": 0,
+    "retries": 0,
+    "llm_calls": 1
   },
   "trace": {
-    "request_id": "eval_20261116110646_q2",
+    "request_id": "eval_20261116192627_q2",
     "question": "How long is the trial period and what are the limits?",
     "customer_id": "cust_001",
     "timeline": [
       {
-        "timestamp": 1794820013.5426767,
+        "timestamp": 1794849992.0401871,
         "type": "retrieval",
         "details": {
           "query": "How long is the trial period and what are the limits?",
@@ -91,69 +89,25 @@
         }
       },
       {
-        "timestamp": 1794820015.0558798,
+        "timestamp": 1794849995.267869,
         "type": "llm_call",
         "details": {
           "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 2818,
+          "tokens": 3349,
           "finish_reason": "tool_calls",
           "purpose": "answer_or_select_tools"
         }
       },
       {
-        "timestamp": 1794820015.0559282,
+        "timestamp": 1794849995.2679124,
         "type": "decision",
         "details": {
-          "action": "call_tools",
-          "tools": [
-            "get_account_status"
-          ]
-        }
-      },
-      {
-        "timestamp": 1794820020.0767791,
-        "type": "tool_call",
-        "details": {
-          "tool": "get_account_status",
-          "params": {
-            "customer_id": "cust_001"
-          },
-          "result": {
-            "customer_id": "cust_001",
-            "email": "user1@example.com",
-            "tier": "basic",
-            "status": "active",
-            "created_at": "2024-01-15T00:00:00Z",
-            "payment_method_id": "pm_001",
-            "as_of": "2026-11-16T09:07:00.073708"
-          },
-          "error": null,
-          "retry_count": 1,
-          "stale": false,
-          "attempts": [
-            {
-              "outcome": "rate_limit",
-              "message": "Backend rate limit exceeded"
-            },
-            {
-              "outcome": "ok"
-            }
-          ]
-        }
-      },
-      {
-        "timestamp": 1794820031.7951996,
-        "type": "llm_call",
-        "details": {
-          "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-          "tokens": 4126,
-          "finish_reason": "stop",
-          "purpose": "synthesize_answer"
+          "action": "answer_from_knowledge_base"
         }
       }
     ],
-    "total_llm_calls": 2,
-    "total_tool_calls": 1,
-    "total_retries": 1
+    "total_llm_calls": 1,
+    "total_tool_calls": 0,
+    "total_retries": 0
   }
 }

@@ -18,6 +18,7 @@ Rules, in priority order:
 7. If a tool result is an error, say that the live data could not be retrieved. Never invent it.
 8. Use escalate_to_human when a human decision or action is needed (billing disputes, suspended accounts, security concerns) and include the returned ticket ID in your answer. Do not escalate plain informational questions.
 9. If the excerpts do not contain the answer, say so.
+10. Never state that something has happened to this customer's account or data (for example that it was deleted, purged or retained) unless a tool result confirms it. No tool reports deletions. Give the written policy and its timing, and say you cannot confirm what happened to this account. Do not conclude from dates that data is gone or unavailable, and do not say it is no longer retained or recoverable. You may say when the policy period ends, but only as what the policy implies, not as a confirmed fact. Example: "The policy says data is deleted 90 days after cancellation; I cannot confirm whether that has happened for this account."
 
 Using tools:
 - Your first response must ALWAYS be a function call, never plain text. To answer the customer directly, call reply with the complete answer.
@@ -99,6 +100,23 @@ TOOLS: List[Dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": REFUND_CASE,
+            "description": "Hand over ANY question about a refund (policy, eligibility, a request, approval, "
+            "money back). The system looks up the account and billing itself. Do not call other tools with it.",
+            "parameters": {"type": "object", "properties": {}, "required": []},
+        },
+    },
+]
+
+
+def tools_for(sources: List[str]) -> List[Dict[str, Any]]:
+    """
+    All tools for one request. The reply tool's declared sources are limited to
+    the files retrieved for this question, so the model cannot name others.
+    """
+    reply = {
+        "type": "function",
+        "function": {
             "name": REPLY,
             "description": "Answer the customer directly from the knowledge-base excerpts, when no account "
             "lookup is needed and the question has nothing to do with refunds.",
@@ -110,28 +128,26 @@ TOOLS: List[Dict[str, Any]] = [
                         "description": "The complete answer for the customer. It must cite every knowledge-base "
                         "file it relies on by exact file name in square brackets, e.g. [support.md]",
                     },
+                    "sources": {
+                        "type": "array",
+                        "items": {"type": "string", "enum": sources},
+                        "description": "Every knowledge-base file the answer relies on, by exact file name. "
+                        "Empty only if no excerpt was used",
+                    },
                     REFUND_FLAG: _REFUND_FLAG_SCHEMA,
                 },
-                "required": ["answer", REFUND_FLAG],
+                "required": ["answer", "sources", REFUND_FLAG],
             },
         },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": REFUND_CASE,
-            "description": "Hand over ANY question about a refund (policy, eligibility, a request, approval, "
-            "money back). The system looks up the account and billing itself. Do not call other tools with it.",
-            "parameters": {"type": "object", "properties": {}, "required": []},
-        },
-    },
-]
+    }
+    return TOOLS + [reply]
 
 
 # Sent after the tool results: small models otherwise try to chain a second tool call.
 FINAL_ANSWER_REMINDER = (
     "Those are all the tool results. Tools are no longer available. "
-    "Write the final answer for the customer now, as plain text, following the rules."
+    "Write the final answer for the customer now, as plain text, following the rules. "
+    "Cite every knowledge-base file you relied on by exact file name in square brackets."
 )
 
 

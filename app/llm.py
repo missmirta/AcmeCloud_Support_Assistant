@@ -15,7 +15,7 @@ import config
 _EMBED_BATCH = 32
 # Reasoning models spend output tokens on hidden reasoning before the answer;
 # a small limit ends the reply (finish_reason "length") with no answer at all.
-_MAX_OUTPUT_TOKENS = 8192
+_MAX_OUTPUT_TOKENS = 16384
 
 
 class LLMError(Exception):
@@ -24,6 +24,10 @@ class LLMError(Exception):
 
 class LLMCutOff(LLMError):
     """The reply hit the output limit before producing an answer or a function call."""
+
+    def __init__(self, message: str, tokens: int = 0):
+        super().__init__(message)
+        self.tokens = tokens
 
 
 @dataclass
@@ -103,13 +107,9 @@ class LLMClient:
         tokens = (data.get("usage") or {}).get("total_tokens", 0)
         content = (message.get("content") or "").strip()
         finish_reason = data["choices"][0].get("finish_reason") or ""
-        if finish_reason == "length" and not content and not tool_calls:
-            # Hit the output limit before any answer: fail loudly instead of
-            # returning an empty reply that the caller would show as the answer.
-            raise LLMCutOff(
-                f"LLM reply cut off at {_MAX_OUTPUT_TOKENS} tokens with no answer "
-                "(reasoning used the whole output budget)"
-            )
+        if finish_reason == "length":
+            # A cut-off reply is never shown or acted on: the caller hands the case to a human.
+            raise LLMCutOff(f"LLM reply cut off at {_MAX_OUTPUT_TOKENS} output tokens", tokens=tokens)
         return LLMReply(
             content=content,
             tool_calls=tool_calls,
