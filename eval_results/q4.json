@@ -1,0 +1,151 @@
+{
+  "question": {
+    "id": 4,
+    "question": "If I cancel my account today, how long will my data be retained?",
+    "customer_id": "cust_001",
+    "difficulty": "medium",
+    "note": "Tests stale policy detection - must use current 90-day policy, not old 30-day"
+  },
+  "http_status": 200,
+  "seconds": 10.4,
+  "response": {
+    "answer": "Based on your basic tier account and AcmeCloud's current data retention policy (effective May 1, 2024), your data will be retained for **90 days** after you cancel your account. This supersedes the previous 30\u2011day retention period.\n\nDuring those 90 days you can:\n- Export your data\n- Change your mind and reactivate\n- Retrieve any final reports or analytics\n- Coordinate with your team on data migration\n\nAfter the 90\u2011day period:\n- All customer data is permanently deleted\n- Backups are purged from our systems\n- Data cannot be recovered\n\nYou'll receive email reminders at 60 days after cancellation, and 30 and 7 days before deletion.\n\n[Data retention policy.md]",
+    "request_id": "eval_20261116110646_q4",
+    "sources": [],
+    "tool_calls": 1,
+    "retries": 0,
+    "llm_calls": 2
+  },
+  "trace": {
+    "request_id": "eval_20261116110646_q4",
+    "question": "If I cancel my account today, how long will my data be retained?",
+    "customer_id": "cust_001",
+    "timeline": [
+      {
+        "timestamp": 1794820059.6321323,
+        "type": "retrieval",
+        "details": {
+          "query": "If I cancel my account today, how long will my data be retained?",
+          "chunks": [
+            {
+              "source": "data_retention.md",
+              "section": "Retention Period",
+              "doc_date": "2023-06-01",
+              "content": "When you cancel your AcmeCloud account, we retain your data for **30 days** after the cancellation date. This gives you time to:\n- Export your data\n- Change your mind and reactivate\n- Retrieve any final reports or analytics",
+              "score": 0.6644
+            },
+            {
+              "source": "data_retention_policy.md",
+              "section": "New Retention Period",
+              "doc_date": "2024-05-01",
+              "content": "When you cancel your AcmeCloud account, we now retain your data for **90 days** after the cancellation date. This extended period gives you more time to:\n- Export your data\n- Change your mind and reactivate\n- Retrieve any final reports or analytics\n- Coordinate with your team on data migration",
+              "score": 0.5922
+            },
+            {
+              "source": "data_retention.md",
+              "section": "Overview",
+              "doc_date": "2023-06-01",
+              "content": "This policy outlines how AcmeCloud retains customer data after account cancellation.",
+              "score": 0.4505
+            },
+            {
+              "source": "data_retention_policy.md",
+              "section": "What Happens After 90 Days",
+              "doc_date": "2024-05-01",
+              "content": "After the 90-day retention period:\n- All customer data is permanently deleted\n- Backups are purged from our systems\n- Data cannot be recovered\n\nWe will send email reminders at:\n- 60 days after cancellation\n- 30 days before deletion\n- 7 days before deletion",
+              "score": 0.4473
+            },
+            {
+              "source": "data_retention.md",
+              "section": "What Happens After 30 Days",
+              "doc_date": "2023-06-01",
+              "content": "After the 30-day retention period:\n- All customer data is permanently deleted\n- Backups are purged from our systems\n- Data cannot be recovered",
+              "score": 0.4213
+            },
+            {
+              "source": "data_retention_policy.md",
+              "section": "Overview",
+              "doc_date": "2024-05-01",
+              "content": "This updated policy outlines how AcmeCloud retains customer data after account cancellation, effective May 1, 2024.",
+              "score": 0.4098
+            },
+            {
+              "source": "refund_basic.md",
+              "section": "Cancellation vs Refund",
+              "doc_date": "2024-03-15",
+              "content": "- **Cancellation**: You can cancel anytime. Your account remains active until the end of the current billing period.\n- **Refund**: Only available within 7 days of payment. Cancels your account immediately.",
+              "score": 0.3585
+            },
+            {
+              "source": "refund_enterprise.md",
+              "section": "Cancellation vs Refund",
+              "doc_date": "2024-03-15",
+              "content": "- **Cancellation**: You can cancel anytime. Your account remains active until the end of the current billing period, and you retain access to all features.\n- **Refund**: Available within 30 days of payment. Cancels your account immediately upon refund processing.",
+              "score": 0.3106
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820061.9307423,
+        "type": "llm_call",
+        "details": {
+          "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+          "tokens": 2763,
+          "finish_reason": "tool_calls",
+          "purpose": "answer_or_select_tools"
+        }
+      },
+      {
+        "timestamp": 1794820061.9307892,
+        "type": "decision",
+        "details": {
+          "action": "call_tools",
+          "tools": [
+            "get_account_status"
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820061.9363048,
+        "type": "tool_call",
+        "details": {
+          "tool": "get_account_status",
+          "params": {
+            "customer_id": "cust_001"
+          },
+          "result": {
+            "customer_id": "cust_001",
+            "email": "user1@example.com",
+            "tier": "basic",
+            "status": "active",
+            "created_at": "2024-01-15T00:00:00Z",
+            "payment_method_id": "pm_001",
+            "as_of": "2026-11-16T09:07:41.934261"
+          },
+          "error": null,
+          "retry_count": 0,
+          "stale": false,
+          "attempts": [
+            {
+              "outcome": "ok"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820069.9537618,
+        "type": "llm_call",
+        "details": {
+          "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+          "tokens": 2945,
+          "finish_reason": "stop",
+          "purpose": "synthesize_answer"
+        }
+      }
+    ],
+    "total_llm_calls": 2,
+    "total_tool_calls": 1,
+    "total_retries": 0
+  }
+}

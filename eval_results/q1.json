@@ -1,0 +1,111 @@
+{
+  "question": {
+    "id": 1,
+    "question": "What are the support hours for Basic tier customers?",
+    "customer_id": "cust_001",
+    "difficulty": "simple",
+    "note": "Single document retrieval, no tools"
+  },
+  "http_status": 200,
+  "seconds": 6.5,
+  "response": {
+    "answer": "Basic tier customers receive email support Monday through Friday, 9:00\u202fAM to 5:00\u202fPM Pacific Time. No phone, chat, or after\u2011hours/weekend support is available. Response time is within 24 business hours during those hours.",
+    "request_id": "eval_20261116110646_q1",
+    "sources": [],
+    "tool_calls": 0,
+    "retries": 0,
+    "llm_calls": 1
+  },
+  "trace": {
+    "request_id": "eval_20261116110646_q1",
+    "question": "What are the support hours for Basic tier customers?",
+    "customer_id": "cust_001",
+    "timeline": [
+      {
+        "timestamp": 1794820007.0992513,
+        "type": "retrieval",
+        "details": {
+          "query": "What are the support hours for Basic tier customers?",
+          "chunks": [
+            {
+              "source": "support.md",
+              "section": "Support Hours",
+              "doc_date": "2024-06-05",
+              "content": "### Basic Tier Support\n- **Monday - Friday, 9am - 5pm Pacific Time**\n- Email support only\n- Response time: within 24 business hours\n- No phone support\n- No after-hours or weekend support\n\n### Enterprise Tier Support  \n- **24/7 coverage** including weekends and holidays\n- Priority support with faster response times\n- Phone and email support\n- Dedicated account manager (assigned within 5 business days of signup)\n- Escalation path to engineering team",
+              "score": 0.6787
+            },
+            {
+              "source": "feature_comparison.md",
+              "section": "Support",
+              "doc_date": "2024-07-01",
+              "content": "| Feature | Basic | Enterprise |\n|---------|-------|------------|\n| Email support | Yes | Yes |\n| Phone support | No | Yes |\n| Chat support | No | Yes |\n| Support hours | Mon-Fri 9am-5pm PT | 24/7/365 |\n| Response time | 24 hours | 1 hour |\n| Dedicated account manager | No | Yes |\n| Priority bug fixes | No | Yes |",
+              "score": 0.5553
+            },
+            {
+              "source": "support.md",
+              "section": "Response Times by Priority",
+              "doc_date": "2024-06-05",
+              "content": "### Basic Tier\n- All issues: 24 business hours (Mon-Fri, 9am-5pm PT)\n\n### Enterprise Tier\n- **P1 (Critical)**: 1 hour, 24/7\n- **P2 (High)**: 4 hours during business hours\n- **P3 (Normal)**: 12 hours during business hours\n- **P4 (Low)**: 48 hours",
+              "score": 0.4859
+            },
+            {
+              "source": "sla_standard.md",
+              "section": "Overview",
+              "doc_date": "2024-02-01",
+              "content": "This SLA applies to all Basic tier customers and covers uptime guarantees and support response times.",
+              "score": 0.4842
+            },
+            {
+              "source": "pricing_2024_q1.md",
+              "section": "Pricing Tiers",
+              "doc_date": "2024-01-15",
+              "content": "### Basic Tier\n- **$10/month** per user\n- 100 GB storage\n- Standard support (Mon-Fri, 9am-5pm PT)\n- 1,000 API requests/hour\n- Email support\n\n### Enterprise Tier\n- **$50/month** per user\n- Unlimited storage\n- Priority support (24/7)\n- 10,000 API requests/hour\n- Dedicated account manager\n- Phone & email support\n- Custom SLAs",
+              "score": 0.4586
+            },
+            {
+              "source": "refund_basic.md",
+              "section": "Refund Window",
+              "doc_date": "2024-03-15",
+              "content": "Basic tier customers can request a **full refund within 7 days** of payment.\n\nAfter 7 days, no refunds are available for Basic tier accounts.",
+              "score": 0.4467
+            },
+            {
+              "source": "pricing_2024_q3.md",
+              "section": "Current Pricing Tiers",
+              "doc_date": "2024-08-01",
+              "content": "### Basic Tier\n- **$15/month** per user\n- 100 GB storage\n- Standard support (Mon-Fri, 9am-5pm PT)\n- 1,000 API requests/hour\n- Email support\n\n### Enterprise Tier\n- **$75/month** per user\n- Unlimited storage\n- Priority support (24/7)\n- 10,000 API requests/hour\n- Dedicated account manager\n- Phone & email support\n- Custom SLAs\n- SSO integration",
+              "score": 0.4425
+            },
+            {
+              "source": "refund_basic.md",
+              "section": "Basic Tier Refund Policy",
+              "doc_date": "2024-03-15",
+              "content": "We want you to be happy with AcmeCloud. If you're not satisfied, here's our refund policy for Basic tier customers.",
+              "score": 0.4138
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820013.3704228,
+        "type": "llm_call",
+        "details": {
+          "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+          "tokens": 3593,
+          "finish_reason": "tool_calls",
+          "purpose": "answer_or_select_tools"
+        }
+      },
+      {
+        "timestamp": 1794820013.3704798,
+        "type": "decision",
+        "details": {
+          "action": "answer_from_knowledge_base"
+        }
+      }
+    ],
+    "total_llm_calls": 1,
+    "total_tool_calls": 0,
+    "total_retries": 0
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "question": {
+    "id": 6,
+    "question": "I'm on Basic tier and want a refund. It's been 10 days since I paid. Am I eligible?",
+    "customer_id": "cust_002",
+    "difficulty": "complex",
+    "note": "Tests tier-specific retrieval + tool calling to verify tier"
+  },
+  "http_status": 200,
+  "seconds": 33.3,
+  "response": {
+    "answer": "I can't approve or promise a refund; that decision is made by a human agent.\nYour account, as verified: basic tier, status active.\nLast charge on record: $15.00 on 2024-09-20 (Monthly subscription - Basic).\nUnder the refund policy for your tier, the refund window is 7 days [refund_basic.md].\nIf you would like a refund request reviewed, say so and it will be passed to a human agent.",
+    "request_id": "eval_20261116110646_q6",
+    "sources": [
+      "refund_basic.md"
+    ],
+    "tool_calls": 2,
+    "retries": 2,
+    "llm_calls": 2
+  },
+  "trace": {
+    "request_id": "eval_20261116110646_q6",
+    "question": "I'm on Basic tier and want a refund. It's been 10 days since I paid. Am I eligible?",
+    "customer_id": "cust_002",
+    "timeline": [
+      {
+        "timestamp": 1794820082.9147923,
+        "type": "retrieval",
+        "details": {
+          "query": "I'm on Basic tier and want a refund. It's been 10 days since I paid. Am I eligible?",
+          "chunks": [
+            {
+              "source": "refund_basic.md",
+              "section": "Refund Window",
+              "doc_date": "2024-03-15",
+              "content": "Basic tier customers can request a **full refund within 7 days** of payment.\n\nAfter 7 days, no refunds are available for Basic tier accounts.",
+              "score": 0.6632
+            },
+            {
+              "source": "refund_basic.md",
+              "section": "Basic Tier Refund Policy",
+              "doc_date": "2024-03-15",
+              "content": "We want you to be happy with AcmeCloud. If you're not satisfied, here's our refund policy for Basic tier customers.",
+              "score": 0.5408
+            },
+            {
+              "source": "refund_basic.md",
+              "section": "Overview",
+              "doc_date": "2024-03-15",
+              "content": "**Tier**: Basic  \n**Last updated**: March 15, 2024",
+              "score": 0.4748
+            },
+            {
+              "source": "refund_enterprise.md",
+              "section": "Refund Window",
+              "doc_date": "2024-03-15",
+              "content": "Enterprise tier customers can request a **full refund within 30 days** of payment.\n\nThis extended window gives you time to:\n- Fully evaluate the platform\n- Test integrations\n- Onboard your team\n- Ensure AcmeCloud meets your needs",
+              "score": 0.3392
+            },
+            {
+              "source": "tier_migration.md",
+              "section": "Downgrading to Basic",
+              "doc_date": "2024-05-01",
+              "content": "### Important Considerations\n\n\u26a0\ufe0f **Data Loss Warning**: Downgrading may result in data loss if you exceed Basic tier limits.\n\n### Pre-Downgrade Checklist\n\nBefore downgrading, ensure:\n\n1. **Storage**: Each user has \u2264 100 GB data\n   - Archive or delete excess data\n   - Download important files locally\n   - Allow 24 hours for storage recalculation\n\n2. **API Usage**: Current usage fits Basic limits\n   - Review API call patterns\n   - Reduce webhook endpoints to 2 or fewer\n   - Delete extra API keys (keep max 2)\n\n3. **Team Size**: Reduce to 5 team members or fewer\n   - Remove inactive users\n   - Reassign ownership of critical resources\n\n4. **Features**: Disable Enterprise-only features\n   - Disable SSO (users will need passwords)\n   - Export audit logs if needed\n   - Remove IP allowlist rules\n\n### Features You'll Lose\n\n- SSO/SAML authentication\n- Priority 24/7 support\n- Dedicated account manager\n- Advanced analytics\n- Point-in-time restore\n- Custom data residency\n- Additional sandbox environments\n\n### Process\n\n1. **Review Requirements**\n   - Check storage usage: Settings > Usage\n   - Verify API usage: Settings > API\n   - Confirm team size: Settings > Team\n\n2. **Prepare for Downgrade**\n   - Complete pre-downgrade checklist\n   - Export any Enterprise-only data\n   - Download audit logs if needed\n\n3. **Request Downgrade**\n   - Contact support: support@acmecloud.com\n   - Include customer ID\n   - Confirm you've completed checklist\n   - Downgrades processed within 48 business hours\n\n4. **Post-Downgrade**\n   - Verify Basic tier limits are respected\n   - Reconfigure authentication (SSO users)\n   - Update API integration if needed\n\n### Billing\n\n- Credit for unused Enterprise time applied to next bill\n- Basic tier charges begin on next billing cycle\n- No refunds for partial months\n\n### Downgrade Restrictions\n\nYou cannot downgrade if:\n- Outstanding balance on account\n- Active Premium SLA subscription\n- Custom contract terms in place\n- Currently in trial period",
+              "score": 0.3189
+            },
+            {
+              "source": "refund_enterprise.md",
+              "section": "What's Included",
+              "doc_date": "2024-03-15",
+              "content": "- Full refund of the monthly or annual subscription fee\n- Pro-rated refunds for annual subscriptions (within 30 days of initial payment)\n- No questions asked within the 30-day window",
+              "score": 0.3155
+            },
+            {
+              "source": "refund_enterprise.md",
+              "section": "Enterprise Tier Refund Policy",
+              "doc_date": "2024-03-15",
+              "content": "We value our Enterprise customers and offer an extended refund policy to ensure your satisfaction.",
+              "score": 0.2904
+            },
+            {
+              "source": "tier_migration.md",
+              "section": "Trial to Paid Conversion",
+              "doc_date": "2024-05-01",
+              "content": "### Basic Tier\n- Automatic conversion at trial end\n- Credit card required before trial expires\n- Seamless transition, no data migration\n\n### Enterprise Tier\n- Contact sales during trial\n- Custom contract available\n- Optional: add Premium SLA",
+              "score": 0.2752
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820100.741121,
+        "type": "llm_call",
+        "details": {
+          "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+          "tokens": 5988,
+          "finish_reason": "tool_calls",
+          "purpose": "answer_or_select_tools"
+        }
+      },
+      {
+        "timestamp": 1794820100.7411668,
+        "type": "decision",
+        "details": {
+          "action": "refund_case",
+          "reason": "refund question: lookups and answer text are handled by code"
+        }
+      },
+      {
+        "timestamp": 1794820105.7549706,
+        "type": "tool_call",
+        "details": {
+          "tool": "get_account_status",
+          "params": {
+            "customer_id": "cust_002"
+          },
+          "result": {
+            "customer_id": "cust_002",
+            "email": "user2@example.com",
+            "tier": "basic",
+            "status": "active",
+            "created_at": "2024-03-20T00:00:00Z",
+            "payment_method_id": "pm_002",
+            "as_of": "2026-11-16T09:08:25.752818"
+          },
+          "error": null,
+          "retry_count": 1,
+          "stale": false,
+          "attempts": [
+            {
+              "outcome": "rate_limit",
+              "message": "Backend rate limit exceeded"
+            },
+            {
+              "outcome": "ok"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820105.7550108,
+        "type": "tool_call",
+        "details": {
+          "tool": "get_billing_history",
+          "params": {
+            "customer_id": "cust_002"
+          },
+          "result": {
+            "customer_id": "cust_002",
+            "balance": 0.0,
+            "last_charge": {
+              "amount": 15.0,
+              "date": "2024-09-20T00:00:00Z",
+              "description": "Monthly subscription - Basic"
+            },
+            "next_charge": "2024-10-20T00:00:00Z",
+            "as_of": "2026-11-16T09:08:21.254143"
+          },
+          "error": null,
+          "retry_count": 1,
+          "stale": false,
+          "attempts": [
+            {
+              "outcome": "service_error",
+              "message": "Backend returned HTTP 503"
+            },
+            {
+              "outcome": "ok"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820116.0681818,
+        "type": "llm_call",
+        "details": {
+          "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+          "tokens": 4230,
+          "finish_reason": "tool_calls",
+          "purpose": "fill_refund_form"
+        }
+      },
+      {
+        "timestamp": 1794820116.0683672,
+        "type": "decision",
+        "details": {
+          "action": "refund_form",
+          "returned": {
+            "window_days": 7,
+            "source": "refund_basic.md",
+            "within_window": "unknown",
+            "needs_human": false
+          },
+          "used": {
+            "window_days": 7,
+            "source": "refund_basic.md",
+            "within_window": "unknown",
+            "needs_human": false,
+            "current_price": null,
+            "price_source": null
+          },
+          "discarded_text": null
+        }
+      }
+    ],
+    "total_llm_calls": 2,
+    "total_tool_calls": 2,
+    "total_retries": 2
+  }
+}

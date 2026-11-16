@@ -1,0 +1,49 @@
+# Healthchecks use python because the python:3.11-slim images do not ship curl.
+x-healthcheck: &healthcheck
+  interval: 5s
+  timeout: 5s
+  retries: 10
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8001:8001"
+    environment:
+      - BACKEND_PORT=8001
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health', timeout=3)"]
+
+  mcp_server:
+    build: ./mcp_server
+    ports:
+      - "8002:8002"
+    environment:
+      - MCP_PORT=8002
+      - BACKEND_URL=http://backend:8001
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health', timeout=3)"]
+
+  app:
+    build: ./app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./corpus:/app/corpus:ro
+    env_file:
+      - .env
+    environment:
+      - APP_PORT=8000
+      - MCP_URL=http://mcp_server:8002
+      - CORPUS_DIR=/app/corpus
+    depends_on:
+      mcp_server:
+        condition: service_healthy
+    healthcheck:
+      <<: *healthcheck
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]

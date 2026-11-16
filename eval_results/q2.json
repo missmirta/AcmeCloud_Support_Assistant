@@ -1,0 +1,159 @@
+{
+  "question": {
+    "id": 2,
+    "question": "How long is the trial period and what are the limits?",
+    "customer_id": "cust_001",
+    "difficulty": "simple",
+    "note": "Single document retrieval, no tools"
+  },
+  "http_status": 200,
+  "seconds": 18.4,
+  "response": {
+    "answer": "The trial period is **14 days** from account creation, starting immediately upon signup with no credit card required. [account_and_billing.md], [pricing_2024_q1.md]\n\nTrial-specific limits are:\n- **100 API calls per day**\n- **10 GB storage**\n- **Standard support only** (Mon\u2013Fri, 9am\u20135pm PT) [account_and_billing.md]\n\nYour account (cust_001) was created on 2024-01-15, and as of 2026-11-16 you are no longer on a trial but are on the **Basic tier**. Basic tier API limits are:\n- **1,000 requests per hour** per account\n- **50 requests per minute** per API key\n- **Burst allowance**: up to 100 requests in 10 seconds [api_limits.md]",
+    "request_id": "eval_20261116110646_q2",
+    "sources": [
+      "account_and_billing.md",
+      "pricing_2024_q1.md",
+      "api_limits.md"
+    ],
+    "tool_calls": 1,
+    "retries": 1,
+    "llm_calls": 2
+  },
+  "trace": {
+    "request_id": "eval_20261116110646_q2",
+    "question": "How long is the trial period and what are the limits?",
+    "customer_id": "cust_001",
+    "timeline": [
+      {
+        "timestamp": 1794820013.5426767,
+        "type": "retrieval",
+        "details": {
+          "query": "How long is the trial period and what are the limits?",
+          "chunks": [
+            {
+              "source": "account_and_billing.md",
+              "section": "Trial Information",
+              "doc_date": "2024-05-20",
+              "content": "### Trial Duration\n- **14 days** from account creation\n- Starts immediately upon signup\n- No credit card required to start\n\n### Trial Limits\n- **100 API calls per day**\n- **10 GB storage**\n- **Standard support only** (Mon-Fri, 9am-5pm PT)\n\n### After Trial\n- Choose Basic or Enterprise tier to continue\n- No automatic conversion - you must manually upgrade\n- Data preserved for 7 days after trial expiration",
+              "score": 0.5327
+            },
+            {
+              "source": "pricing_2024_q1.md",
+              "section": "Trial Period",
+              "doc_date": "2024-01-15",
+              "content": "All new accounts start with a 14-day free trial. No credit card required.",
+              "score": 0.3374
+            },
+            {
+              "source": "pricing_2024_q3.md",
+              "section": "Trial Period",
+              "doc_date": "2024-08-01",
+              "content": "All new accounts start with a 14-day free trial. No credit card required.",
+              "score": 0.3374
+            },
+            {
+              "source": "tier_migration.md",
+              "section": "Trial to Paid Conversion",
+              "doc_date": "2024-05-01",
+              "content": "### Basic Tier\n- Automatic conversion at trial end\n- Credit card required before trial expires\n- Seamless transition, no data migration\n\n### Enterprise Tier\n- Contact sales during trial\n- Custom contract available\n- Optional: add Premium SLA",
+              "score": 0.2419
+            },
+            {
+              "source": "account_and_billing.md",
+              "section": "Account Statuses",
+              "doc_date": "2024-05-20",
+              "content": "Your AcmeCloud account can have one of four statuses:\n\n### Active\n- All features and services available\n- Billing is current\n- No restrictions\n\n### Trial\n- 14-day evaluation period\n- Limited to 100 API calls per day\n- No credit card required\n- All features available except:\n  - Custom SLAs\n  - Dedicated account manager\n  - SSO integration\n\n### Suspended\n- Account temporarily disabled\n- Typically due to:\n  - Payment failure or overdue invoice\n  - Policy violation\n  - Security concern requiring investigation\n- Data is preserved and accessible after reactivation\n- To resolve: address the underlying issue (update payment method, contact support)\n\n### Canceled\n- Account termination requested\n- Access to services ends at the end of current billing period\n- Data retained for 90 days after cancellation (see Data Retention Policy)\n- Can reactivate before data deletion",
+              "score": 0.202
+            },
+            {
+              "source": "account_and_billing.md",
+              "section": "Questions",
+              "doc_date": "2024-05-20",
+              "content": "- Account questions: support@acmecloud.com\n- Billing questions: billing@acmecloud.com\n- Trial extensions: sales@acmecloud.com",
+              "score": 0.1626
+            },
+            {
+              "source": "api_limits.md",
+              "section": "Standard Rate Limits",
+              "doc_date": "2024-03-01",
+              "content": "All API requests are subject to rate limiting to ensure fair usage and system stability.\n\n### Basic Tier\n- **1,000 requests per hour** per account\n- **50 requests per minute** per API key\n- Burst allowance: up to 100 requests in 10 seconds\n\n### Enterprise Tier\n- **10,000 requests per hour** per account\n- **500 requests per minute** per API key\n- Burst allowance: up to 1,000 requests in 10 seconds",
+              "score": 0.1489
+            },
+            {
+              "source": "data_retention_policy.md",
+              "section": "New Retention Period",
+              "doc_date": "2024-05-01",
+              "content": "When you cancel your AcmeCloud account, we now retain your data for **90 days** after the cancellation date. This extended period gives you more time to:\n- Export your data\n- Change your mind and reactivate\n- Retrieve any final reports or analytics\n- Coordinate with your team on data migration",
+              "score": 0.1433
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820015.0558798,
+        "type": "llm_call",
+        "details": {
+          "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+          "tokens": 2818,
+          "finish_reason": "tool_calls",
+          "purpose": "answer_or_select_tools"
+        }
+      },
+      {
+        "timestamp": 1794820015.0559282,
+        "type": "decision",
+        "details": {
+          "action": "call_tools",
+          "tools": [
+            "get_account_status"
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820020.0767791,
+        "type": "tool_call",
+        "details": {
+          "tool": "get_account_status",
+          "params": {
+            "customer_id": "cust_001"
+          },
+          "result": {
+            "customer_id": "cust_001",
+            "email": "user1@example.com",
+            "tier": "basic",
+            "status": "active",
+            "created_at": "2024-01-15T00:00:00Z",
+            "payment_method_id": "pm_001",
+            "as_of": "2026-11-16T09:07:00.073708"
+          },
+          "error": null,
+          "retry_count": 1,
+          "stale": false,
+          "attempts": [
+            {
+              "outcome": "rate_limit",
+              "message": "Backend rate limit exceeded"
+            },
+            {
+              "outcome": "ok"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820031.7951996,
+        "type": "llm_call",
+        "details": {
+          "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+          "tokens": 4126,
+          "finish_reason": "stop",
+          "purpose": "synthesize_answer"
+        }
+      }
+    ],
+    "total_llm_calls": 2,
+    "total_tool_calls": 1,
+    "total_retries": 1
+  }
+}

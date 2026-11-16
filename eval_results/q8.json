@@ -1,0 +1,236 @@
+{
+  "question": {
+    "id": 8,
+    "question": "I'm an Enterprise customer. I paid $50 last month but your pricing page says $75. Which is correct, and can I get a refund?",
+    "customer_id": "cust_004",
+    "difficulty": "complex",
+    "note": "Tests pricing contradiction + tier-specific docs + multiple tools"
+  },
+  "http_status": 200,
+  "seconds": 17.1,
+  "response": {
+    "answer": "I can't approve or promise a refund; that decision is made by a human agent.\nYour account, as verified: enterprise tier, status active.\nLast charge on record: $50.00 on 2024-08-15 (Monthly subscription - Enterprise (legacy pricing)).\nThe current list price for your tier is $75.00 per user per month [pricing_2024_q3.md].\nUnder the refund policy for your tier, the refund window is 30 days [refund_enterprise.md].\nFrom the dates available, the payment appears to be outside that window.\nTicket TKT-99DD9ADB has been opened and a human agent will review your request.",
+    "request_id": "eval_20261116110646_q8",
+    "sources": [
+      "refund_enterprise.md",
+      "pricing_2024_q3.md"
+    ],
+    "tool_calls": 3,
+    "retries": 1,
+    "llm_calls": 2
+  },
+  "trace": {
+    "request_id": "eval_20261116110646_q8",
+    "question": "I'm an Enterprise customer. I paid $50 last month but your pricing page says $75. Which is correct, and can I get a refund?",
+    "customer_id": "cust_004",
+    "timeline": [
+      {
+        "timestamp": 1794820124.7927873,
+        "type": "retrieval",
+        "details": {
+          "query": "I'm an Enterprise customer. I paid $50 last month but your pricing page says $75. Which is correct, and can I get a refund?",
+          "chunks": [
+            {
+              "source": "refund_enterprise.md",
+              "section": "What's Included",
+              "doc_date": "2024-03-15",
+              "content": "- Full refund of the monthly or annual subscription fee\n- Pro-rated refunds for annual subscriptions (within 30 days of initial payment)\n- No questions asked within the 30-day window",
+              "score": 0.4729
+            },
+            {
+              "source": "refund_enterprise.md",
+              "section": "Partial Refunds",
+              "doc_date": "2024-03-15",
+              "content": "After the 30-day window, Enterprise customers may still request pro-rated refunds in special circumstances. Contact your account manager to discuss options.",
+              "score": 0.4539
+            },
+            {
+              "source": "refund_enterprise.md",
+              "section": "Refund Window",
+              "doc_date": "2024-03-15",
+              "content": "Enterprise tier customers can request a **full refund within 30 days** of payment.\n\nThis extended window gives you time to:\n- Fully evaluate the platform\n- Test integrations\n- Onboard your team\n- Ensure AcmeCloud meets your needs",
+              "score": 0.4489
+            },
+            {
+              "source": "pricing_2024_q3.md",
+              "section": "Current Pricing Tiers",
+              "doc_date": "2024-08-01",
+              "content": "### Basic Tier\n- **$15/month** per user\n- 100 GB storage\n- Standard support (Mon-Fri, 9am-5pm PT)\n- 1,000 API requests/hour\n- Email support\n\n### Enterprise Tier\n- **$75/month** per user\n- Unlimited storage\n- Priority support (24/7)\n- 10,000 API requests/hour\n- Dedicated account manager\n- Phone & email support\n- Custom SLAs\n- SSO integration",
+              "score": 0.3839
+            },
+            {
+              "source": "pricing_2024_q1.md",
+              "section": "Pricing Tiers",
+              "doc_date": "2024-01-15",
+              "content": "### Basic Tier\n- **$10/month** per user\n- 100 GB storage\n- Standard support (Mon-Fri, 9am-5pm PT)\n- 1,000 API requests/hour\n- Email support\n\n### Enterprise Tier\n- **$50/month** per user\n- Unlimited storage\n- Priority support (24/7)\n- 10,000 API requests/hour\n- Dedicated account manager\n- Phone & email support\n- Custom SLAs",
+              "score": 0.3765
+            },
+            {
+              "source": "sla_premium.md",
+              "section": "Overview",
+              "doc_date": "2024-02-01",
+              "content": "Premium SLA is available for Enterprise tier customers at an additional **$500/month**. Provides enhanced uptime guarantees and priority support.",
+              "score": 0.3183
+            },
+            {
+              "source": "tier_migration.md",
+              "section": "Upgrading to Enterprise",
+              "doc_date": "2024-05-01",
+              "content": "### Process\n\n1. **Navigate to Billing Settings**\n   - Go to Settings > Billing > Change Plan\n   - Select Enterprise tier\n   - Review pricing and features\n\n2. **Complete Upgrade**\n   - Confirm upgrade\n   - Charges are pro-rated for the current billing period\n   - New features activate immediately\n\n3. **Post-Upgrade Setup**\n   - Configure SSO (if needed)\n   - Set up additional team members\n   - Configure advanced security settings\n   - Schedule onboarding call with account manager\n\n### Billing\n\n- Pro-rated charges for remainder of current billing period\n- Example: Upgrading mid-month from Basic ($15) to Enterprise ($75)\n  - Receive credit for unused Basic time\n  - Charged pro-rated Enterprise amount\n- Next full billing cycle: full Enterprise price\n\n### No Downtime\n\nUpgrades are instant with zero downtime. All existing data, API keys, and configurations remain intact.",
+              "score": 0.314
+            },
+            {
+              "source": "refund_basic.md",
+              "section": "What's Included",
+              "doc_date": "2024-03-15",
+              "content": "- Full refund of the monthly subscription fee\n- Pro-rated refunds for annual subscriptions (within 7 days of initial payment only)\n- No questions asked",
+              "score": 0.2994
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820127.438974,
+        "type": "llm_call",
+        "details": {
+          "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+          "tokens": 3013,
+          "finish_reason": "tool_calls",
+          "purpose": "answer_or_select_tools"
+        }
+      },
+      {
+        "timestamp": 1794820127.4390194,
+        "type": "decision",
+        "details": {
+          "action": "refund_case",
+          "reason": "refund question: lookups and answer text are handled by code"
+        }
+      },
+      {
+        "timestamp": 1794820131.9570284,
+        "type": "tool_call",
+        "details": {
+          "tool": "get_account_status",
+          "params": {
+            "customer_id": "cust_004"
+          },
+          "result": {
+            "customer_id": "cust_004",
+            "email": "user4@example.com",
+            "tier": "enterprise",
+            "status": "active",
+            "created_at": "2023-12-01T00:00:00Z",
+            "payment_method_id": "pm_004",
+            "as_of": "2026-11-16T09:08:47.446080"
+          },
+          "error": null,
+          "retry_count": 0,
+          "stale": false,
+          "attempts": [
+            {
+              "outcome": "ok"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820131.9570696,
+        "type": "tool_call",
+        "details": {
+          "tool": "get_billing_history",
+          "params": {
+            "customer_id": "cust_004"
+          },
+          "result": {
+            "customer_id": "cust_004",
+            "balance": 0.0,
+            "last_charge": {
+              "amount": 50.0,
+              "date": "2024-08-15T00:00:00Z",
+              "description": "Monthly subscription - Enterprise (legacy pricing)"
+            },
+            "next_charge": "2024-10-01T00:00:00Z",
+            "as_of": "2026-11-16T09:08:51.954747"
+          },
+          "error": null,
+          "retry_count": 1,
+          "stale": false,
+          "attempts": [
+            {
+              "outcome": "timeout",
+              "message": "Backend did not respond within 4s"
+            },
+            {
+              "outcome": "ok"
+            }
+          ]
+        }
+      },
+      {
+        "timestamp": 1794820141.7702577,
+        "type": "llm_call",
+        "details": {
+          "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+          "tokens": 4494,
+          "finish_reason": "tool_calls",
+          "purpose": "fill_refund_form"
+        }
+      },
+      {
+        "timestamp": 1794820141.7704227,
+        "type": "decision",
+        "details": {
+          "action": "refund_form",
+          "returned": {
+            "window_days": 30,
+            "source": "refund_enterprise.md",
+            "within_window": "no",
+            "needs_human": true,
+            "current_price": 75,
+            "price_source": "pricing_2024_q3.md"
+          },
+          "used": {
+            "window_days": 30,
+            "source": "refund_enterprise.md",
+            "within_window": "no",
+            "needs_human": true,
+            "current_price": 75.0,
+            "price_source": "pricing_2024_q3.md"
+          },
+          "discarded_text": null
+        }
+      },
+      {
+        "timestamp": 1794820141.7790442,
+        "type": "tool_call",
+        "details": {
+          "tool": "escalate_to_human",
+          "params": {
+            "customer_id": "cust_004",
+            "issue": "Refund request to review. Customer wrote: I'm an Enterprise customer. I paid $50 last month but your pricing page says $75. Which is correct, and can I get a refund?",
+            "priority": "P2",
+            "idempotency_key": "457191dadea2cd5e683b66bec248b53e2532a9a5763fc58fdf6f62f33423731b"
+          },
+          "result": {
+            "ticket_id": "TKT-99DD9ADB",
+            "status": "created",
+            "customer_id": "cust_004",
+            "priority": "P2"
+          },
+          "error": null,
+          "retry_count": 0,
+          "stale": false,
+          "attempts": [
+            {
+              "outcome": "ok"
+            }
+          ]
+        }
+      }
+    ],
+    "total_llm_calls": 2,
+    "total_tool_calls": 3,
+    "total_retries": 1
+  }
+}
